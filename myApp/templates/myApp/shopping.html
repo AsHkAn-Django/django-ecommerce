@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container my-5">
+        <h2 class="text-center mb-4">Available Books</h2>
+
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for book in books %}
+                <div class="col">
+                    <div class="card shadow-lg border-light rounded h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ book.title }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">by {{ book.author }}</h6>
+                            <p class="card-text">{{ book.stock }} in stock</p>
+                            <p class="card-text"><strong>${{ book.price }}</strong></p>
+                            <p class="card-text">
+                                {% if book.stock > 0 %}                                    
+                                    {% if book.stock_lower_than10 %}
+                                    <span class="badge bg-warning">Only {{book.stock}} left !!!</span>
+                                    {% else %}
+                                    <span class="badge bg-success">Available</span>
+                                    {% endif %}                                          
+                                {% else %}
+                                    <span class="badge bg-danger">Out of stock</span>
+                                {% endif %}
+                            </p>
+                            <a href="{% url 'myApp:purchase' book.pk %}" class="btn btn-primary w-100 {% if book.stock == 0 %} disabled {% endif %}">
+                                {% if book.stock > 0 %} Buy Now {% else %} Out of Stock {% endif %}
+                            </a>
+                            
+                            {% if user.is_staff  %}
+                            <a class="btn btn-outline-secondary mt-2 btn-sm" href="{% url 'myApp:update_book' book.pk %}">Add books to stock</a>             
+                            {% endif %}
+                                
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock content %}

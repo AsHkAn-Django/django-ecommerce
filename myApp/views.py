@@ -2,6 +2,7 @@ from django.views import generic
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models import Exists, OuterRef
 
 from .models import Book, CartItem, Favorite, Rating
 from .forms import RatingForm
@@ -15,7 +16,12 @@ class ShoppingListView(generic.ListView):
 
     def get_queryset(self):
         self.request.session['prevent_double_purchase'] = False
-        return Book.objects.all()
+        qs = Book.objects.all()
+        if self.request.user.is_authenticated:
+            qs = qs.annotate(is_favorite=Exists(
+                Favorite.objects.filter(user=self.request.user, book=OuterRef('pk')))
+            )
+        return qs
 
 
 
@@ -120,3 +126,9 @@ def add_to_favorite_toggle(request, pk):
     else:
         Favorite.objects.create(user=request.user, book=book)
     return redirect('myApp:shopping')
+
+
+
+class FavoriteListView(generic.ListView):
+    model = Favorite
+    template_name = "myApp/favorite_list.html"

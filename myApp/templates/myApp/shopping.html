@@ -14,24 +14,34 @@
                             <p class="card-text">{{ book.stock }} in stock</p>
                             <p class="card-text"><strong>${{ book.price }}</strong></p>
                             <p class="card-text">
-                                {% if book.stock > 0 %}                                    
+                                {% if book.stock > 0 %}
                                     {% if book.stock_lower_than10 %}
                                     <span class="badge bg-warning">Only {{book.stock}} left !!!</span>
                                     {% else %}
                                     <span class="badge bg-success">Available</span>
-                                    {% endif %}                                          
+                                    {% endif %}
                                 {% else %}
                                     <span class="badge bg-danger">Out of stock</span>
                                 {% endif %}
                             </p>
+
+                            {% if user.is_authenticated %}
+                            {% if book.is_favorite %}
+                            <a href="{% url 'myApp:add_to_favorite' book.pk %}" class="btn btn-danger mb-2">Remove from favorite</a>
+                            {% else %}
+                            <a href="{% url 'myApp:add_to_favorite' book.pk %}" class="btn btn-outline-danger mb-2">Add to favorite</a>
+                            {% endif %}
+
+                            {% endif %}
+
                             <a href="{% url 'myApp:purchase' book.pk %}" class="btn btn-primary w-100 {% if book.stock == 0 %} disabled {% endif %}">
                                 {% if book.stock > 0 %} Buy Now {% else %} Out of Stock {% endif %}
                             </a>
-                            
+
                             {% if user.is_staff  %}
-                            <a class="btn btn-outline-secondary mt-2 btn-sm" href="{% url 'myApp:update_book' book.pk %}">Add books to stock</a>             
+                            <a class="btn btn-outline-secondary mt-2 btn-sm" href="{% url 'myApp:update_book' book.pk %}">Add books to stock</a>
                             {% endif %}
-                                
+
                         </div>
                     </div>
                 </div>

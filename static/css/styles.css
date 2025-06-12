@@ -1,0 +1,10 @@
+.book-card-img {
+  width: 100%;
+  height: 250px;
+  object-fit: contain;
+  object-position: center;
+  background-color: #f8f9fa; /* light background in case image doesn't fill area */
+  padding: 10px;
+  border-top-left-radius: var(--bs-card-inner-border-radius);
+  border-top-right-radius: var(--bs-card-inner-border-radius);
+}

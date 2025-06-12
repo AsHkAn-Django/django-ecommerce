@@ -3,6 +3,14 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.urls import reverse
 from django.conf import settings
 from decimal import Decimal
+from django.utils.text import slugify
+import os
+
+
+
+def book_image_upload_path(instance, filename):
+    title_slug = slugify(instance.title)
+    return os.path.join('uploads', title_slug, filename)
 
 
 
@@ -11,7 +19,7 @@ class Book(models.Model):
     author = models.CharField(max_length=264)
     price = models.DecimalField(max_digits=6, decimal_places=2, validators=[MinValueValidator(0)])
     stock = models.IntegerField(validators=[MinValueValidator(0)])
-    image = models.ImageField(upload_to=f'uploads/{title}/')
+    image = models.ImageField(upload_to=book_image_upload_path)
     description = models.CharField(max_length=264)
 
     def get_absolute_url(self):

@@ -12,6 +12,7 @@ class Book(models.Model):
     price = models.DecimalField(max_digits=6, decimal_places=2, validators=[MinValueValidator(0)])
     stock = models.IntegerField(validators=[MinValueValidator(0)])
     image = models.ImageField(upload_to=f'uploads/{title}/')
+    description = models.CharField(max_length=264)
 
     def get_absolute_url(self):
         return reverse('myApp:home')

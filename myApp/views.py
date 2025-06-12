@@ -1,8 +1,12 @@
 from django.views import generic
-from .models import Book, CartItem
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+
+from .models import Book, CartItem, Favorite, Rating
+from .forms import RatingForm
+
+
 
 
 class ShoppingListView(generic.ListView):
@@ -20,7 +24,6 @@ class IndexView(generic.TemplateView):
 
 
 
-
 class CartView(generic.ListView):
     model = CartItem
     template_name = 'myApp/cart.html'
@@ -28,6 +31,7 @@ class CartView(generic.ListView):
     def get_context_data(self, **kwargs):
         items = get_cart_context(self.request.user)
         return items
+
 
 
 class SessionCartView(generic.ListView):
@@ -41,6 +45,7 @@ class SessionCartView(generic.ListView):
         return {'items':cart_items, 'total':total}
 
 
+
 class BookUpdateView(UserPassesTestMixin, LoginRequiredMixin, generic.UpdateView):
     model = Book
     fields = ('stock',)
@@ -52,6 +57,7 @@ class BookUpdateView(UserPassesTestMixin, LoginRequiredMixin, generic.UpdateView
     def form_valid(self, form):
         messages.success(self.request, 'Books added to the stock successfully!')
         return super().form_valid(form)
+
 
 
 def purchase(request, pk):
@@ -104,3 +110,13 @@ def delete_item(request, pk):
     cart_ids.remove(pk)
     request.session["cart"] = cart_ids
     return redirect('myApp:session_cart')
+
+
+def add_to_favorite_toggle(request, pk):
+    book = get_object_or_404(Book, pk=pk)
+    favorite = Favorite.objects.filter(user=request.user, book=book)
+    if favorite:
+        favorite.delete()
+    else:
+        Favorite.objects.create(user=request.user, book=book)
+    return redirect('myApp:shopping')

@@ -18,7 +18,7 @@ class Book(models.Model):
     title = models.CharField(max_length=264)
     author = models.CharField(max_length=264)
     price = models.DecimalField(max_digits=6, decimal_places=2, validators=[MinValueValidator(0)])
-    stock = models.IntegerField(validators=[MinValueValidator(0)])
+    stock = models.IntegerField(validators=[MinValueValidator(0)], default=0)
     image = models.ImageField(upload_to=book_image_upload_path)
     description = models.CharField(max_length=264)
 

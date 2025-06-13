@@ -1,8 +1,10 @@
 from django.views import generic
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse_lazy
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Exists, OuterRef
+from django.contrib.auth.decorators import login_required
 
 from .models import Book, CartItem, Favorite, Rating
 from .forms import RatingForm
@@ -118,6 +120,7 @@ def delete_item(request, pk):
     return redirect('myApp:session_cart')
 
 
+@login_required
 def add_to_favorite_toggle(request, pk):
     book = get_object_or_404(Book, pk=pk)
     favorite = Favorite.objects.filter(user=request.user, book=book)
@@ -129,6 +132,37 @@ def add_to_favorite_toggle(request, pk):
 
 
 
-class FavoriteListView(generic.ListView):
-    model = Favorite
+class FavoriteListView(LoginRequiredMixin, generic.ListView):
     template_name = "myApp/favorite_list.html"
+    context_object_name = 'favorites'
+
+    def get_queryset(self):
+        return Favorite.objects.filter(user=self.request.user)
+
+
+
+
+class RatingFormView(generic.FormView):
+    model = Rating
+    template_name = "myApp/rating.html"
+    form_class = RatingForm
+    success_url = reverse_lazy('myApp:shopping')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        pk = self.kwargs.get('pk')
+        context['book'] = get_object_or_404(Book, pk=pk)
+        return context
+
+    def form_valid(self, form):
+        pk = self.kwargs.get('pk')
+        book = get_object_or_404(Book, pk=pk)
+        rating, created = Rating.objects.update_or_create(book=book,
+        user=self.request.user, defaults={'rate': form.cleaned_data['rate']})
+        if created:
+            messages.success(self.request, 'Rating added successfully.')
+        else:
+            messages.success(self.request, "Rating updated successfully.")
+        return redirect('myApp:shopping')
+
+

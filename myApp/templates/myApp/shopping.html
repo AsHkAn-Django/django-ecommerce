@@ -2,13 +2,12 @@
 
 {% block content %}
 <div class="container my-5">
-  <h2 class="text-center mb-5">Available Books</h2>
+  <h2 class="text-center mb-5">Product list:</h2>
 
   <div class="row row-cols-1 row-cols-md-3 g-4">
     {% for book in books %}
       <div class="col">
         <div class="card h-100 shadow-sm">
-
           <img
             src="{{ book.image.url }}"
             class="card-img-top book-card-img"
@@ -19,6 +18,25 @@
             <div class="mb-3">
               <h5 class="card-title">{{ book.title }}</h5>
               <h6 class="card-subtitle text-muted">{{ book.author }}</h6>
+            </div>
+
+            <div class="rating-box mb-3 border rounded bg-secondary text-white text-center p-3">
+              <h6 class="mb-2">User Rating</h6>
+              <div class="rating-stars mb-2">
+                {% for i in "12345" %}
+                  {% if book.get_average_rating >= forloop.counter %}
+                    <i class="fa fa-star text-warning"></i>
+                  {% elif book.get_average_rating >= forloop.counter|add:"-0.5" %}
+                    <i class="fa fa-star-half-o text-warning"></i>
+                  {% else %}
+                    <i class="fa fa-star-o text-warning"></i>
+                  {% endif %}
+                {% endfor %}
+                ({{ book.get_rates_number }})
+              </div>
+              <p class="mb-0">
+                <strong>{{ book.get_average_rating|floatformat:1 }}</strong> out of 5
+              </p>
             </div>
 
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -42,29 +60,24 @@
           <div class="card-footer bg-transparent border-top-0 d-grid gap-2">
             {% if user.is_authenticated %}
               {% if book.is_favorite %}
-                <a href="{% url 'myApp:add_to_favorite' book.pk %}"
-                   class="btn btn-danger btn-sm">
+                <a href="{% url 'myApp:add_to_favorite' book.pk %}" class="btn btn-danger btn-sm">
                   ❤️ Remove Favorite
                 </a>
               {% else %}
-                <a href="{% url 'myApp:add_to_favorite' book.pk %}"
-                   class="btn btn-outline-danger btn-sm">
+                <a href="{% url 'myApp:add_to_favorite' book.pk %}" class="btn btn-outline-danger btn-sm">
                   🤍 Add Favorite
                 </a>
               {% endif %}
+              <a href="{% url 'myApp:rating' book.pk %}" class="btn btn-outline-info">Rate this Product</a>
             {% endif %}
 
-            <a
-              href="{% url 'myApp:purchase' book.pk %}"
-              class="btn btn-primary"
-              {% if book.stock == 0 %} disabled {% endif %}
-            >
+            <a href="{% url 'myApp:purchase' book.pk %}" class="btn btn-primary"
+               {% if book.stock == 0 %} disabled {% endif %}>
               {% if book.stock > 0 %} Buy Now {% else %} Out of Stock {% endif %}
             </a>
 
             {% if user.is_staff %}
-              <a href="{% url 'myApp:update_book' book.pk %}"
-                 class="btn btn-outline-secondary btn-sm">
+              <a href="{% url 'myApp:update_book' book.pk %}" class="btn btn-outline-secondary btn-sm">
                 + Add to Stock
               </a>
             {% endif %}

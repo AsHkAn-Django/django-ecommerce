@@ -5,7 +5,7 @@ from .models import Rating
 class RatingForm(forms.ModelForm):
     class Meta:
         model = Rating
-        fields = "__all__"
+        fields = ['rate',]
         labels = {
             'rate': 'Rate between 1-5'
         }

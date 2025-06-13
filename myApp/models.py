@@ -38,7 +38,6 @@ class Book(models.Model):
             total = sum(rating.rate for rating in ratings)
         return Decimal(round(total / len(ratings), 1))
 
-
     def get_rates_number(self):
         return len(self.book_ratings.all())
 

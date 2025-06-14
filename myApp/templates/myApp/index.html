@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
+{% load static %}
 
 <div class="container mt-4">
 
@@ -23,6 +24,37 @@
       <a href="{% url 'myApp:shopping' %}" class="btn btn-outline-light btn-lg">See the Products</a>
     </div>
   </div>
+  {% if recommended_books %}
+  <h1 class="mt-4 my-5"> Recommended for You</h1>
+  <div class="row">
+    {% for book in recommended_books %}
+      <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+          <a href="{% url 'myApp:book_detail' book.pk %}">
+            {% if book.image %}
+              <img src="{{ book.image.url }}" class="card-img-top" alt="{{ book.title }}">
+            {% else %}
+              <img src="{% static 'img/image.jpeg' %}" class="card-img-top" alt="{{ book.title }}">
+            {% endif %}
+          </a>
+          <div class="card-body">
+            <h5 class="card-title">
+              <a href="{% url 'myApp:book_detail' book.pk %}">{{ book.title }}</a>
+            </h5>
+            <p class="card-text">
+              <strong>Author:</strong> {{ book.author }}<br>
+              <strong>Price:</strong> ${{ book.price }}
+            </p>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="alert alert-info mt-3">
+    No recommendations available.
+  </div>
+{% endif %}
 
   <!-- Footer Section -->
   <footer class="mt-5 text-center text-muted">

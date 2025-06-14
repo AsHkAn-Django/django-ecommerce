@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 
 from .models import Book, CartItem, Favorite, Rating
 from .forms import RatingForm
+from .recommned import get_top_n_recommendations
 
 
 
@@ -29,6 +30,18 @@ class ShoppingListView(generic.ListView):
 
 class IndexView(generic.TemplateView):
     template_name = "myApp/index.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.request.user.is_authenticated:
+            recommended_ids = get_top_n_recommendations(self.request.user.id)
+            recommended_books = Book.objects.filter(id__in=recommended_ids)
+            context['recommended_books'] = recommended_books
+        else:
+            context['recommended_books'] = []
+
+        return context
 
 
 
@@ -166,3 +179,17 @@ class RatingFormView(generic.FormView):
         return redirect('myApp:shopping')
 
 
+
+class BookDetailView(generic.DetailView):
+    model = Book
+    template_name = 'myApp/book_detail.html'
+    context_object_name = 'book'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        book = self.get_object()
+        if self.request.user.is_authenticated:
+            context['is_favorite'] = book.book_favorites.filter(user=self.request.user).exists()
+        else:
+            context['is_favorite'] = False
+        return context

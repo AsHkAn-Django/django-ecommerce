@@ -12,5 +12,6 @@ urlpatterns = [
     path('shopping/', views.ShoppingListView.as_view(), name='shopping'),
     path('rating/<int:pk>/', views.RatingFormView.as_view(), name='rating'),
     path('add_to_favorite/<int:pk>/', views.add_to_favorite_toggle, name='add_to_favorite'),
+    path('book/<int:pk>/', views.BookDetailView.as_view(), name='book_detail'),
     path('', views.IndexView.as_view(), name='home'),
 ]

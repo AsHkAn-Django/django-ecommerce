@@ -1,62 +1,58 @@
 {% extends 'base.html' %}
-{% block content %}
 {% load static %}
-
+{% block content %}
 <div class="container mt-4">
 
   <div class="jumbotron bg-dark text-white p-5 rounded shadow">
     <h1 class="display-4 text-center">Welcome to Book Store</h1>
     <p class="lead text-center">
-      Easily add books to your cart, pay, and recieve notification and invoice.
+      Easily add books to your cart, pay, and receive notification and invoice.
     </p>
     <div class="text-center mt-4">
-
       {% if user.is_authenticated %}
-      <a href="{% url 'myApp:cart' %}" class="btn btn-light btn-lg me-2"
-        >Visit Cart</a
-      >
+        <a href="{% url 'myApp:cart' %}" class="btn btn-light btn-lg me-2">Visit Cart</a>
       {% else %}
-      <a href="{% url 'myApp:session_cart' %}" class="btn btn-light btn-lg me-2"
-        >Visit Cart</a
-      >
+        <a href="{% url 'myApp:session_cart' %}" class="btn btn-light btn-lg me-2">Visit Cart</a>
       {% endif %}
-
       <a href="{% url 'myApp:shopping' %}" class="btn btn-outline-light btn-lg">See the Products</a>
     </div>
   </div>
+
   {% if recommended_books %}
-  <h1 class="mt-4 my-5"> Recommended for You</h1>
-  <div class="row">
-    {% for book in recommended_books %}
-      <div class="col-md-4 mb-4">
-        <div class="card h-100 shadow-sm">
-          <a href="{% url 'myApp:book_detail' book.pk %}">
-            {% if book.image %}
-              <img src="{{ book.image.url }}" class="card-img-top" alt="{{ book.title }}">
-            {% else %}
-              <img src="{% static 'img/image.jpeg' %}" class="card-img-top" alt="{{ book.title }}">
-            {% endif %}
-          </a>
-          <div class="card-body">
-            <h5 class="card-title">
-              <a href="{% url 'myApp:book_detail' book.pk %}">{{ book.title }}</a>
-            </h5>
-            <p class="card-text">
-              <strong>Author:</strong> {{ book.author }}<br>
-              <strong>Price:</strong> ${{ book.price }}
-            </p>
+    <h1 class="mt-4 my-5">Recommended for You</h1>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+      {% for book in recommended_books %}
+        <div class="col">
+          <div class="card h-100 shadow-sm">
+            <a href="{% url 'myApp:book_detail' book.pk %}">
+              {% if book.image %}
+                <img src="{{ book.image.url }}" class="card-img-top book-card-img" alt="{{ book.title }}">
+              {% else %}
+                <img src="{% static 'img/image.jpeg' %}" class="card-img-top book-card-img" alt="No image available">
+              {% endif %}
+            </a>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">
+                <a href="{% url 'myApp:book_detail' book.pk %}">{{ book.title }}</a>
+              </h5>
+              <p class="card-text mb-2">
+                <strong>Author:</strong> {{ book.author }}<br>
+                <strong>Price:</strong> ${{ book.price }}
+              </p>
+              <div class="mt-auto">
+                <a href="{% url 'myApp:book_detail' book.pk %}" class="btn btn-sm btn-outline-primary">View Details</a>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    {% endfor %}
-  </div>
-{% else %}
-  <div class="alert alert-info mt-3">
-    No recommendations available.
-  </div>
-{% endif %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info mt-3">
+      No recommendations available.
+    </div>
+  {% endif %}
 
-  <!-- Footer Section -->
   <footer class="mt-5 text-center text-muted">
     <p>&copy; {% now "Y" %} Task Manager. All rights reserved.</p>
   </footer>

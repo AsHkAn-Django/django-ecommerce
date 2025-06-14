@@ -1,7 +1,6 @@
-# django-ecommerce
+# django-ecommerce-with-api
 
-Just a quick little project I made while practicing Django and backend development.
-This is part of my journey as I learn and improve my skills.
+One of my favorite projects with user recommendation, like, review and ofcourse api.
 
 ## About the Project
 

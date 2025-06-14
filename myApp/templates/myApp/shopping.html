@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
 <div class="container my-5">
-  <h2 class="text-center mb-5">Product list:</h2>
+  <h2 class="text-center mb-5">Products list:</h2>
 
   <div class="row row-cols-1 row-cols-md-3 g-4">
     {% for book in books %}
       <div class="col">
         <div class="card h-100 shadow-sm">
-          <img
-            src="{{ book.image.url }}"
-            class="card-img-top book-card-img"
-            alt="{{ book.title }}"
-          />
+          {% if book.image %}
+          <img src="{{ book.image.url }}" class="card-img-top book-card-img" alt="{{ book.title }}"/>
+          {% else %}
+          <img src="{% static 'img/image.jpeg'%}" class="card-img-top book-card-img" alt="no image available"/>
+          {% endif %}
 
           <div class="card-body d-flex flex-column">
             <div class="mb-3">

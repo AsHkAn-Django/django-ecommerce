@@ -13,6 +13,7 @@ class BookViewset(viewsets.ModelViewSet):
     serializer_class = BookSerializer
     permission_classes = (IsAdminOrReadOnly,)
 
+
     def get_queryset(self):
         title = self.request.query_params.get('title')
         qs = Book.objects.all()

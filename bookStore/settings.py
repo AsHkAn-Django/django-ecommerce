@@ -138,3 +138,48 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'myApp:home'
 LOGOUT_REDIRECT_URL = 'myApp:home'
 
+
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.UserRateThrottle',
+        'rest_framework.throttling.AnonRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'user': '100/day',
+        'anon': '10/minute',
+    }
+}
+
+# TODO: Or if you want a custom throthle you can use:
+# from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
+# class UserMinuteThrottle(UserRateThrottle):
+#     scope = 'user_minute'
+# class UserHourThrottle(UserRateThrottle):
+#     scope = 'user_hour'
+# class UserDayThrottle(UserRateThrottle):
+#     scope = 'user_day'
+# class AnonMinuteThrottle(AnonRateThrottle):
+#     scope = 'anon_minute'
+# class AnonHourThrottle(AnonRateThrottle):
+#     scope = 'anon_hour'
+# class AnonDayThrottle(AnonRateThrottle):
+#     scope = 'anon_day'
+# REST_FRAMEWORK = {
+#     'DEFAULT_THROTTLE_CLASSES': [
+#         'myApp.throttles.UserMinuteThrottle',
+#         'myApp.throttles.UserHourThrottle',
+#         'myApp.throttles.UserDayThrottle',
+#         'myApp.throttles.AnonMinuteThrottle',
+#         'myApp.throttles.AnonHourThrottle',
+#         'myApp.throttles.AnonDayThrottle',
+#     ],
+#     'DEFAULT_THROTTLE_RATES': {
+#         'user_minute': '10/minute',
+#         'user_hour': '100/hour',
+#         'user_day': '1000/day',
+
+#         'anon_minute': '5/minute',
+#         'anon_hour': '50/hour',
+#         'anon_day': '500/day',
+#     }
+# }

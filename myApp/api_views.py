@@ -2,7 +2,8 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from .models import Book, Rating, Favorite, CartItem
 from .serializers import BookSerializer
-from rest_framework.decorators import action
+from .permissions import IsAdminOrReadOnly
+
 
 
 class BookViewset(viewsets.ModelViewSet):
@@ -10,6 +11,7 @@ class BookViewset(viewsets.ModelViewSet):
     A viewset with search and ordering.
     """
     serializer_class = BookSerializer
+    permission_classes = (IsAdminOrReadOnly,)
 
     def get_queryset(self):
         title = self.request.query_params.get('title')

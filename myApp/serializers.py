@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Book, Rating, Favorite, CartItem
+from .models import Book, Rating, Favorite
 
 
 class BookSerializer(serializers.ModelSerializer):

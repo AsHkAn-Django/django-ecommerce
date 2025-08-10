@@ -10,9 +10,9 @@
     </p>
     <div class="text-center mt-4">
       {% if user.is_authenticated %}
-        <a href="{% url 'myApp:cart' %}" class="btn btn-light btn-lg me-2">Visit Cart</a>
+        <a href="{% url 'cart:cart_list' %}" class="btn btn-light btn-lg me-2">Visit Cart</a>
       {% else %}
-        <a href="{% url 'myApp:session_cart' %}" class="btn btn-light btn-lg me-2">Visit Cart</a>
+        <a href="{% url 'cart:session_cart' %}" class="btn btn-light btn-lg me-2">Visit Cart</a>
       {% endif %}
       <a href="{% url 'myApp:shopping' %}" class="btn btn-outline-light btn-lg">See the Products</a>
     </div>

@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Book, Favorite, Rating
 from .forms import RatingForm
 from .recommned import get_top_n_recommendations
+from cart.forms import CartAddForm
 
 
 
@@ -24,6 +25,11 @@ class ShoppingListView(generic.ListView):
                 Favorite.objects.filter(user=self.request.user, book=OuterRef('pk')))
             )
         return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = CartAddForm()
+        return context
 
 
 

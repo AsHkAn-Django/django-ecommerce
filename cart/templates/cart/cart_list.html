@@ -2,9 +2,9 @@
 
 {% block content %}
     <div class="container my-5">
-        <h2 class="text-center mb-4">Your Shopping Cart</h2>
+        <h2 class="text-center mb-4">Shopping Cart</h2>
 
-        {% if items %}
+        {% if cart %}
             <div class="table-responsive">
                 <table class="table table-bordered table-striped">
                     <thead class="thead-dark">
@@ -12,11 +12,12 @@
                             <th scope="col">Product</th>
                             <th scope="col">Author</th>
                             <th scope="col">Price</th>
+                            <th scope="col">Quantity</th>
                             <th scope="col">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for item in items %}
+                        {% for item in cart.items.all %}
                             <tr>
                                 <td>
                                     <div class="d-flex align-items-center">
@@ -27,8 +28,9 @@
                                 </td>
                                 <td>{{ item.book.author }}</td>
                                 <td>${{ item.book.price }}</td>
+                                <td>{{ item.quantity}}</td>
                                 <td>
-                                    <a href="{% url 'myApp:delete_item' item.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                                    <a href="{% url 'cart:delete_item' item.pk %}" class="btn btn-danger btn-sm">Delete</a>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -36,7 +38,7 @@
                 </table>
 
                 <div class="d-flex justify-content-between align-items-center mt-4">
-                    <h4>Total: <strong>${{ total }}</strong></h4>
+                    <h4>Total: <strong>${{ cart.get_total_cost }}</strong></h4>
                     <button class="btn btn-success btn-lg">Proceed to Payment</button>
                 </div>
             </div>

@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.views import generic
 from django.contrib import messages
 
@@ -8,47 +9,35 @@ from myApp.models import Book
 from .forms import CartAddForm
 
 
-
+@require_POST
 @login_required
 def cart_add(request, pk):
     """Add book to cart"""
     book = get_object_or_404(Book, pk=pk)
     user = request.user
-    if request.method == "POST":
-        form = CartAddForm(request.POST)
-        if form.is_valid():
-            cd = form.cleaned_data
-            cart, _ = Cart.objects.get_or_create(user=user)
+    form = CartAddForm(request.POST or None)
+    if form.is_valid():
+        cd = form.cleaned_data
+        cart, _ = Cart.objects.get_or_create(user=user)
 
-            # This checks if the user has this item in his cart so doesn't duplicate it and just update the quantity
-            cart_item, created = CartItem.objects.get_or_create(cart=cart, product=book)
-            if not created:
-                cart_item.quantity += cd['quantity']
-            else:
-                cart_item.quantity = cd['quantity']
+        # This checks if the user has this item in his cart so doesn't duplicate it and just update the quantity
+        cart_item, created = CartItem.objects.get_or_create(cart=cart, book=book)
+        if not created:
+            cart_item.quantity += cd['quantity']
+        else:
+            cart_item.quantity = cd['quantity']
+        cart_item.save()
+        messages.success(request, 'Item added to the cart.')
+        return redirect('cart:cart_list')
 
-            cart_item.save()
-            return redirect('cart:cart_list')
-    else:
-        form = CartAddForm()
-    return render(request, 'cart/cart_add.html', {'book': book, 'form': form})
+    messages.warning(request, 'There was a problem in adding the item.')
+    return redirect('myApp:shopping')
 
 
 @login_required
 def cart_list(request):
     cart = get_object_or_404(Cart.objects.prefetch_related('items__book'), user=request.user)
     return render(request, 'cart/cart_list.html', {'cart': cart})
-
-
-
-class CartView(generic.ListView):
-    model = CartItem
-    template_name = 'myApp/cart.html'
-
-    def get_context_data(self, **kwargs):
-        items = get_cart_context(self.request.user)
-        return items
-
 
 
 class SessionCartView(generic.ListView):
@@ -72,7 +61,7 @@ def purchase(request, pk):
 
     if last_purchase == current_purchase and request.session.get('prevent_double_purchase', False):
         messages.warning(request, "You've already added this item!")
-        return redirect('myApp:cart')
+        return redirect('cart:cart_list')
 
     # Store purchase in session to prevent accidental duplicates
     request.session['last_purchase'] = current_purchase
@@ -81,10 +70,22 @@ def purchase(request, pk):
     messages.success(request, "Item added to cart!")
 
     if request.user.is_authenticated:
-        book.stock -= 1
-        book.save()
-        CartItem.objects.create(book=book, buyer=request.user)
-        return render(request, 'myApp/cart.html', get_cart_context(request.user))
+        pass
+        # book = get_object_or_404(Book, pk=pk)
+        # user = request.user
+        # form = CartAddForm(request.POST or None)
+        # if form.is_valid():
+        #     cd = form.cleaned_data
+        #     cart, _ = Cart.objects.get_or_create(user=user)
+
+        #     # This checks if the user has this item in his cart so doesn't duplicate it and just update the quantity
+        #     cart_item, created = CartItem.objects.get_or_create(cart=cart, product=book)
+        #     if not created:
+        #         cart_item.quantity += cd['quantity']
+        #     else:
+        #         cart_item.quantity = cd['quantity']
+        #     cart_item.save()
+        # return redirect('cart:cart_list')
 
     cart_ids = request.session.get('cart', [])
     cart_ids.append(pk)
@@ -95,12 +96,6 @@ def purchase(request, pk):
 
 
 
-def get_cart_context(user):
-    items = CartItem.objects.filter(buyer=user)
-    total = sum(item.book.price for item in items)
-    return {'items': items, 'total': total}
-
-
 def delete_item(request, pk):
     if request.user.is_authenticated:
         item = get_object_or_404(CartItem, pk=pk)
@@ -108,7 +103,7 @@ def delete_item(request, pk):
         book.stock += 1
         book.save()
         item.delete()
-        return redirect('myApp:cart')
+        return redirect('cart:cart_list')
     cart_ids = request.session.get("cart", [])
     cart_ids.remove(pk)
     request.session["cart"] = cart_ids

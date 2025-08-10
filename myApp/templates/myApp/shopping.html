@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load django_bootstrap5 %}
 {% block content %}
 <div class="container my-5">
   <h2 class="text-center mb-5">Products list:</h2>
@@ -71,9 +72,17 @@
               <a href="{% url 'myApp:rating' book.pk %}" class="btn btn-outline-info">Rate this Product</a>
             {% endif %}
 
-            <a href="{% url 'myApp:purchase' book.pk %}" class="btn btn-primary"
-               {% if book.stock == 0 %} disabled {% endif %}>
-              {% if book.stock > 0 %} Buy Now {% else %} Out of Stock {% endif %}
+              <form action="{% url 'cart:cart_add' book.pk %}" method="post">
+                {% csrf_token %}
+                {% bootstrap_form form %}
+                <button type="submit" class="btn btn-primary" {% if book.stock == 0 %} disabled {% endif %}>
+                  {% if book.stock > 0 %}
+                  Buy Now
+                  {% else %}
+                  Out of Stock
+                  {% endif %}
+                </button>
+              </form>
             </a>
 
             {% if user.is_staff %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+  <h2 class="mb-4 text-center"> My Orders</h2>
+
+  {% if orders %}
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+      {% for order in orders %}
+        <div class="col">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <h5 class="card-title">Order #{{ order.id }}</h5>
+
+              <p class="card-text mb-2">
+                {% if order.recipt_file %}
+                  <a href="{{ order.recipt_file.url }}" class="btn btn-primary btn-sm" download>
+                    Download Recipt
+                  </a>
+                {% else %}
+                  <span class="badge bg-secondary">No Recipt available</span>
+                {% endif %}
+              </p>
+
+              {% if order.qr_file %}
+                <img src="{{ order.qr_file.url }}" alt="QR Code for Order {{ order.id }}"
+                     class="img-fluid rounded" style="max-height: 150px;">
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-muted text-center">You have no orders yet.</p>
+  {% endif %}
+</div>
+{% endblock content %}

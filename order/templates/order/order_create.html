@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+  <div class="container">
+    <h2>Fill the form to proceed to payment</h2>
+    <form action="" method="post">
+      {% csrf_token %}
+      {% bootstrap_form form %}
+      <button type="submit" class="btn btn-warning">Proceed Payment</button>
+    </form>
+  </div>
+{% endblock content %}

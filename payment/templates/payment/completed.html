@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="text-center mt-5">
+    <h2 class="text-success fw-bold">✅ Transaction Completed!</h2>
+    <p class="lead mt-3">
+        You can download your ticket from
+        <a href="{% url 'order:my_orders_list' %}" class="fw-semibold text-decoration-underline">
+            your orders page
+        </a>.
+    </p>
+</div>
+{% endblock content %}

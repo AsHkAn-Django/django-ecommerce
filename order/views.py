@@ -23,9 +23,9 @@ def order_create(request):
             for item in cart_items:
                 OrderItem.objects.create(order=order, book=item.book, price=item.book.price, quantity=item.quantity)
             return redirect('payment:process', order_id=order.id)
-        else:
-            form = OrderForm()
-        return render(request, 'order/order_create.html', {'form': form})
+    else:
+        form = OrderForm()
+    return render(request, 'order/order_create.html', {'form': form})
 
 
 @login_required

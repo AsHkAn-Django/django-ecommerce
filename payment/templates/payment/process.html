@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow rounded">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">Review Your Order</h4>
+        </div>
+        <div class="card-body">
+
+          {% for item in order.items.all %}
+          <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+            <div>
+              <h5 class="mb-1">{{ item.book.title }}</h5>
+              <small>Quantity: {{ item.quantity }}</small>
+            </div>
+            <div class="text-end">
+              <p class="mb-0">${{ item.price }} each</p>
+              <p class="mb-0"><strong>${{ item.get_cost|floatformat:2 }}</strong></p>
+            </div>
+          </div>
+          {% endfor %}
+
+          <div class="d-flex justify-content-between align-items-center mt-3">
+            <h5 class="mb-0">Total:</h5>
+            <h5 class="mb-0 text-success">${{ order.get_total_cost|floatformat:2 }}</h5>
+          </div>
+
+          <form method="post" class="mt-4">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-warning text-center">Proceed to Payment</button>
+          </form>
+
+          <div class="text-center mt-3">
+            <a href="{% url 'cart:cart_list' %}" class="btn btn-link">Go back to cart</a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -46,12 +46,8 @@ class SessionCartView(generic.ListView):
 
     def get_context_data(self, **kwargs):
         cart = self.request.session.get("cart", [])
-        cart_items = []
-        for item in cart:
-            for book_id, value in item.items():
-                cart_items.append(get_object_or_404(Book, pk=int(book_id)))
-
-        total = sum(item.price for item in cart_items)
+        cart_items = [(get_object_or_404(Book, pk=int(item['pk'])), item['quantity']) for item in cart]
+        total = sum(item[0].price * int(item[1]) for item in cart_items)
         return {'items':cart_items, 'total':total}
 
 
@@ -61,16 +57,13 @@ def purchase(request, pk):
 
     if form.is_valid():
         quantity = form.cleaned_data['quantity']
-        new_cart_item = {pk:{'quantity':quantity},}
+        new_cart_item = {'pk':pk, 'quantity':quantity}
         cart.append(new_cart_item)
         request.session['cart'] = cart
 
-    cart_items = []
-    for item in cart:
-        for book_id, value in item.items():
-            cart_items.append(get_object_or_404(Book, pk=int(book_id)))
+    cart_items = [(get_object_or_404(Book, pk=int(item['pk'])), item['quantity']) for item in cart]
 
-    total = sum(item.price for item in cart_items)
+    total = sum(item[0].price * int(item[1]) for item in cart_items)
 
     messages.success(request, "Item added to cart!")
     return render(request, 'cart/session_cart.html', {'items': cart_items, 'total': total})
@@ -86,10 +79,9 @@ def delete_item(request, pk):
         return redirect('cart:cart_list')
     cart = request.session.get("cart", [])
     for item in cart:
-        for book_id, value in item.items():
-            if int(book_id) == int(pk):
-                cart.remove(item)
-                messages.success(request, 'Item was deleted successfully.')
+        if int(item['pk']) == int(pk):
+            cart.remove(item)
+            messages.success(request, 'Item was deleted successfully.')
     request.session["cart"] = cart
 
     return redirect('cart:session_cart')

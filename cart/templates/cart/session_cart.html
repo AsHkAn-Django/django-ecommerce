@@ -22,15 +22,15 @@
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div class="ms-3">
-                                            <h5 class="mb-0">{{ item.title }}</h5>
+                                            <h5 class="mb-0">{{ item.0.title }}</h5>
                                         </div>
                                     </div>
                                 </td>
-                                <td>{{ item.author }}</td>
-                                <td>${{ item.price }}</td>
-                                <td>{{ item.quantity}}</td>
+                                <td>{{ item.0.author }}</td>
+                                <td>${{ item.0.price }}</td>
+                                <td>{{ item.1}}</td>
                                 <td>
-                                    <a href="{% url 'cart:delete_item' item.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                                    <a href="{% url 'cart:delete_item' item.0.pk %}" class="btn btn-danger btn-sm">Delete</a>
                                 </td>
                             </tr>
                         {% endfor %}

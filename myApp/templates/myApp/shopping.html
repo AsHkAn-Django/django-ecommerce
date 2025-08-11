@@ -74,14 +74,7 @@
 
 
 
-              <form
-
-              action={% if user.is_authenticated %}
-                "{% url 'cart:cart_add' book.pk %}"
-                {% else %}
-                "{% url 'cart:purchase' book.pk %}"
-                {% endif %}
-              method="post">
+              <form action="{% url 'cart:cart_add' book.pk %}" method="post">
                 {% csrf_token %}
                 {% bootstrap_form form %}
                 <button type="submit" class="btn btn-primary" {% if book.stock == 0 %} disabled {% endif %}>

@@ -52,17 +52,26 @@ class SessionCartView(generic.ListView):
 
 
 def purchase(request, pk):
+    exist = False
     cart = request.session.get('cart', {})
     form = CartAddForm(request.POST or None)
 
     if form.is_valid():
         quantity = form.cleaned_data['quantity']
-        new_cart_item = {'pk':pk, 'quantity':quantity}
-        cart.append(new_cart_item)
-        request.session['cart'] = cart
+        # Check if that item exist
+        for item in cart:
+            if pk == int(item['pk']):
+                item['quantity'] = int(item['quantity']) + quantity
+                request.session['cart'] = cart
+                exist = True
+
+        # Add a new item
+        if not exist:
+            new_cart_item = {'pk':pk, 'quantity':quantity}
+            cart.append(new_cart_item)
+            request.session['cart'] = cart
 
     cart_items = [(get_object_or_404(Book, pk=int(item['pk'])), item['quantity']) for item in cart]
-
     total = sum(item[0].price * int(item[1]) for item in cart_items)
 
     messages.success(request, "Item added to cart!")

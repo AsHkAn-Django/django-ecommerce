@@ -72,7 +72,16 @@
               <a href="{% url 'myApp:rating' book.pk %}" class="btn btn-outline-info">Rate this Product</a>
             {% endif %}
 
-              <form action="{% url 'cart:cart_add' book.pk %}" method="post">
+
+
+              <form
+
+              action={% if user.is_authenticated %}
+                "{% url 'cart:cart_add' book.pk %}"
+                {% else %}
+                "{% url 'cart:purchase' book.pk %}"
+                {% endif %}
+              method="post">
                 {% csrf_token %}
                 {% bootstrap_form form %}
                 <button type="submit" class="btn btn-primary" {% if book.stock == 0 %} disabled {% endif %}>

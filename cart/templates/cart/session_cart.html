@@ -12,6 +12,7 @@
                             <th scope="col">Product</th>
                             <th scope="col">Author</th>
                             <th scope="col">Price</th>
+                            <th scope="col">Quantity</th>
                             <th scope="col">Actions</th>
                         </tr>
                     </thead>
@@ -27,8 +28,9 @@
                                 </td>
                                 <td>{{ item.author }}</td>
                                 <td>${{ item.price }}</td>
+                                <td>{{ item.quantity}}</td>
                                 <td>
-                                    <a href="{% url 'myApp:delete_item' item.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                                    <a href="{% url 'cart:delete_item' item.pk %}" class="btn btn-danger btn-sm">Delete</a>
                                 </td>
                             </tr>
                         {% endfor %}

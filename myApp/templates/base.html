@@ -53,7 +53,7 @@
               <a class="nav-link" href="#">Hi {{user.username}}</a>
             </li>
             <li class="nav-item">
-              <form action="{% url 'logout' %}" method="post">
+              <form action="{% url 'registration:logout' %}" method="post">
                 {% csrf_token %}
                 <button type="submit" class="nav-link btn btn-link">Logout</button>
               </form>
@@ -70,7 +70,7 @@
               <a class="nav-link" href="#">You are not logged in.</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">Login</a>
+              <a class="nav-link" href="{% url 'registration:login' %}">Login</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'registration:sign_up' %}">Register</a>

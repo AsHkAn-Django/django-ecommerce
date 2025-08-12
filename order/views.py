@@ -8,9 +8,9 @@ from .forms import OrderForm
 from .models import OrderItem, Order
 from cart.models import CartItem
 
-import weasyprint
 
 
+@login_required
 def order_create(request):
     cart_items = CartItem.objects.filter(cart__user=request.user)
     if request.method == 'POST':
@@ -30,5 +30,5 @@ def order_create(request):
 
 @login_required
 def my_orders_list(request):
-    orders = Order.objects.filter(user=request.uesr)
+    orders = Order.objects.filter(user=request.user)
     return render(request, 'order/my_orders_list.html', {'orders': orders})

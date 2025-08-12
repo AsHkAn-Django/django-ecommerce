@@ -66,9 +66,6 @@ def delete_item(request, pk):
     """Delete an item from the cart (auth or session-based)."""
     if request.user.is_authenticated:
         item = get_object_or_404(CartItem, pk=pk)
-        book = item.book
-        book.stock += 1
-        book.save()
         item.delete()
         return redirect('cart:cart_list')
 

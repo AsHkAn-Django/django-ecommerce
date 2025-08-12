@@ -1,0 +1,49 @@
+<html>
+<body>
+    <div class="receipt">
+        <header>
+            <h1>Purchase Receipt</h1>
+            <p><strong>Order ID:</strong> {{ order.id }}</p>
+            <p><strong>Date:</strong> {{ order.created_at|date:"F j, Y, H:i" }}</p>
+        </header>
+
+        <section class="user-info">
+            <h2>Customer</h2>
+            <p><strong>Name:</strong> {{ order.first_name|title }} {{ order.last_name|title }}</p>
+            <p><strong>Email:</strong> {{ order.email }}</p>
+        </section>
+
+        <section class="items">
+            <h2>Purchased Books</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Book</th>
+                        <th>Author</th>
+                        <th>Price</th>
+                        <th>Qty</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items.all %}
+                    <tr>
+                        <td>{{ item.book.title }}</td>
+                        <td>{{ item.book.author }}</td>
+                        <td>${{ item.book.price }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>${{ item.get_cost|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <p class="total"><strong>Total Paid:</strong> ${{ order.get_total_cost|floatformat:2 }}</p>
+        </section>
+
+        <div class="footer-note">
+            Thank you for your purchase.<br>
+            Visit us again soon.
+        </div>
+    </div>
+</body>
+</html>

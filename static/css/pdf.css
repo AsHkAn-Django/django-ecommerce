@@ -1,0 +1,57 @@
+body {
+    font-family: "Courier New", monospace;
+    background: #f5f5f5;
+    padding: 2rem;
+}
+
+.receipt {
+    max-width: 700px;
+    margin: auto;
+    background: white;
+    border: 2px dashed #000;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+header {
+    text-align: center;
+    border-bottom: 2px dashed #000;
+    margin-bottom: 1.5rem;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.user-info, .items {
+    margin-bottom: 1.5rem;
+}
+
+.items table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.5rem;
+}
+
+.items th, .items td {
+    padding: 0.5rem;
+    border-bottom: 1px dotted #555;
+    text-align: left;
+}
+
+.total {
+    text-align: right;
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.footer-note {
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    border-top: 2px dashed #000;
+    padding-top: 1rem;
+}

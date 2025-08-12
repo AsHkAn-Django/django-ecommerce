@@ -27,7 +27,7 @@ urlpatterns = [
     path('api/v1/', include('myApp.api_urls', namespace='api')),
     path('cart/', include('cart.urls', namespace='cart')),
     path('order/', include('order.urls', namespace='order')),
-    path('payment', include('payment.urls', namespace='payment')),
+    path('payment/', include('payment.urls', namespace='payment')),
     path('', include('myApp.urls', namespace='myApp')),
 ]
 

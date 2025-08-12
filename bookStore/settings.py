@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from decouple import config
+import os
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -188,11 +189,27 @@ REST_FRAMEWORK = {
 # }
 
 
-
+# Stripe Config
 STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY')
 STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
 STRIPE_API_VERSION = '2024-04-10'
 STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET')
 
 
+# Custom user model
 AUTH_USER_MODEL = 'registration.CustomUser'
+
+
+# CELERY REDIS
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379/1")
+
+
+# Email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')

@@ -26,9 +26,10 @@ urlpatterns = [
     path('accounts/', include('registration.urls')),
     path('api/v1/', include('myApp.api.api_urls', namespace='api')),
     path('cart/', include('cart.urls', namespace='cart')),
+    path('api/v1/', include('cart.api.urls', namespace='cart_api')),
+    path('api/v1/', include('order.api.urls', namespace='order_api')),
     path('order/', include('order.urls', namespace='order')),
     path('payment/', include('payment.urls', namespace='payment')),
-    path('api/v1/', include('cart.api.urls', namespace='cart_api')),
     path('', include('myApp.urls', namespace='myApp')),
 ]
 

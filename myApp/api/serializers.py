@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Book, Rating, Favorite
+from myApp.models import Book
 
 
 class BookSerializer(serializers.ModelSerializer):
@@ -10,7 +10,10 @@ class BookSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Book
-        fields = ('id', 'title', 'author', 'stock', 'price', 'image', 'description', 'average_rate', 'rate_numbers', 'is_favorite')
+        fields = (
+            'id', 'title', 'author', 'stock', 'price', 'image', 'description',
+            'average_rate', 'rate_numbers', 'is_favorite'
+        )
         read_only_fields = ('author', 'stock',)
 
     def get_average_rate(self, obj):

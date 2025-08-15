@@ -39,6 +39,7 @@
 
                 <div class="d-flex justify-content-between align-items-center mt-4">
                     <h4>Total: <strong>${{ cart.get_total_cost }}</strong></h4>
+                    <a href="{% url 'myApp:shopping' %}" class="btn btn-secondary btn-lg">Continue Shopping</a>
                     <a href="{% url 'order:order_create' %}" class="btn btn-success btn-lg">Proceed to Payment</a>
                 </div>
             </div>

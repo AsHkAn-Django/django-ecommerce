@@ -68,12 +68,13 @@ class CreateCartItemSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         cart = get_object_or_404(Cart, user=user)
         book = attrs['book']
-        quantity = attrs['quantity']
+        new_quantity = attrs['quantity']
+
+        # check if item already exists in cart
         existing_item = CartItem.objects.filter(cart=cart, book=book).first()
-        if existing_item:
-            quantity += existing_item.quantity
+        total_quantity = new_quantity + (existing_item.quantity if existing_item else 0)
         try:
-            book.quantity_stock_check(quantity)
+            book.quantity_stock_check(total_quantity)
         except ValueError as e:
             raise serializers.ValidationError(str(e))
         return attrs
@@ -93,5 +94,6 @@ class CreateCartItemSerializer(serializers.ModelSerializer):
         if not created:
             cart_item.quantity += quantity
             cart_item.save()
+
         return cart_item
 

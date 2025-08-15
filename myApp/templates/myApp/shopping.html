@@ -76,14 +76,16 @@
 
               <form action="{% url 'cart:cart_add' book.pk %}" method="post">
                 {% csrf_token %}
-                {% bootstrap_form form %}
-                <button type="submit" class="btn btn-primary" {% if book.stock == 0 %} disabled {% endif %}>
+                <div class="form-group">
+                <input type="number" name="quantity" value="1" min="1" max="{{ book.stock }}" class="form-control">
+                <button type="submit" class="btn btn-primary mt-2" {% if book.stock == 0 %} disabled {% endif %}>
                   {% if book.stock > 0 %}
                   Buy Now
                   {% else %}
                   Out of Stock
                   {% endif %}
                 </button>
+                </div>
               </form>
             </a>
 

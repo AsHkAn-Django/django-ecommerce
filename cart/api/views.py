@@ -44,10 +44,16 @@ class CartItemView(APIView):
 
     def post(self, request):
         """A post method to add an item to cart."""
-        serializer = CreateCartItemSerializer(data=request.data,
-                                              context={'request': request})
+        serializer = CreateCartItemSerializer(
+            data=request.data,
+            context={'request': request}
+        )
         serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response({'success': 'The item has been added to your cart.'
-                        ' Now you can create an order if your are done.'},
-                        status=status.HTTP_200_OK)
+        cart_item = serializer.save()
+        return Response(
+            {
+                'success': f'{cart_item.book.title} has been added to your cart. '
+                           f'Quantity: {cart_item.quantity}'
+            },
+            status=status.HTTP_200_OK
+        )

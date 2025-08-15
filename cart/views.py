@@ -5,44 +5,55 @@ from django.contrib import messages
 
 from cart.models import Cart, CartItem
 from myApp.models import Book
-from .forms import CartAddForm
 
 
 @require_POST
 def cart_add(request, pk):
     """Add a book to the cart for authenticated or session-based users."""
     book = get_object_or_404(Book, pk=pk)
-    form = CartAddForm(request.POST or None)
 
-    if not form.is_valid():
-        messages.warning(request, 'There was a problem adding the item.')
+    # Get quantity from POST, default to 1, ensure it's a positive integer
+    try:
+        quantity = int(request.POST.get('quantity', 1))
+        if quantity <= 0:
+            raise ValueError
+    except ValueError:
+        messages.warning(request, "Invalid quantity.")
         return redirect('myApp:shopping')
 
-    cd = form.cleaned_data
-
-    # Authenticated user cart handling
+    # Determine current quantity in cart
     if request.user.is_authenticated:
         cart, _ = Cart.objects.get_or_create(user=request.user)
-        cart_item, created = CartItem.objects.get_or_create(cart=cart, book=book)
+        existing_item = CartItem.objects.filter(cart=cart, book=book).first()
+        current_quantity = existing_item.quantity if existing_item else 0
+    else:
+        cart = request.session.get('cart', {})
+        pk_str = str(pk)
+        current_quantity = int(cart.get(pk_str, 0))
 
-        if not created:
-            cart_item.quantity += cd['quantity']
-        else:
-            cart_item.quantity = cd['quantity']
+    # Total quantity after adding
+    total_quantity = current_quantity + quantity
 
+    # Stock check
+    try:
+        book.quantity_stock_check(total_quantity)
+    except ValueError as e:
+        messages.warning(request, str(e))
+        return redirect('myApp:shopping')
+
+    # Update cart
+    if request.user.is_authenticated:
+        cart_item, _ = CartItem.objects.get_or_create(cart=cart, book=book)
+        cart_item.quantity = total_quantity
         cart_item.save()
-        messages.success(request, 'Item added to the cart.')
+        messages.success(request, "Item added to the cart.")
         return redirect('cart:cart_list')
-
-    # Session-based cart handling (dict pk_str -> quantity)
-    cart = request.session.get('cart', {})
-    pk_str = str(pk)
-    cart[pk_str] = cart.get(pk_str, 0) + cd['quantity']
-    request.session['cart'] = cart
-
-    messages.success(request, "Item added to cart!")
-    return redirect('cart:session_cart')
-
+    else:
+        cart[pk_str] = total_quantity
+        request.session['cart'] = cart
+        messages.success(request, "Item added to cart!")
+        return redirect('cart:session_cart')
+    
 
 @login_required
 def cart_list(request):

@@ -2,6 +2,7 @@ from rest_framework import serializers
 from cart.models import Cart, CartItem
 from myApp.models import Book
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 
 
 
@@ -46,18 +47,51 @@ class CreateCartSerializer(serializers.ModelSerializer):
         model = Cart
         fields = []
 
-    def create(self, validated_data):
-        validated_data['user'] = self.context['request'].user
-        return super().create(validated_data)
-
     def validate(self, attrs):
         user = self.context['request'].user
         if Cart.objects.filter(user=user).exists():
             raise serializers.ValidationError("User already has a cart.")
         return attrs
 
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
 
 
 class CreateCartItemSerializer(serializers.ModelSerializer):
     """A POST method version serializer for Cart Item."""
-    pass
+    class Meta:
+        model = CartItem
+        fields = ['book', 'quantity']
+
+    def validate(self, attrs):
+        user = self.context['request'].user
+        cart = get_object_or_404(Cart, user=user)
+        book = attrs['book']
+        quantity = attrs['quantity']
+        existing_item = CartItem.objects.filter(cart=cart, book=book).first()
+        if existing_item:
+            quantity += existing_item.quantity
+        try:
+            book.quantity_stock_check(quantity)
+        except ValueError as e:
+            raise serializers.ValidationError(str(e))
+        return attrs
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        cart = get_object_or_404(Cart, user=user)
+        book = validated_data['book']
+        quantity = validated_data['quantity']
+
+        cart_item, created = CartItem.objects.get_or_create(
+            cart=cart,
+            book=book,
+            defaults={'quantity': quantity}
+        )
+
+        if not created:
+            cart_item.quantity += quantity
+            cart_item.save()
+        return cart_item
+

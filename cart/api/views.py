@@ -1,4 +1,5 @@
-from .serializers import CartItemSerializer, CreateCartSerializer
+from .serializers import (CartItemSerializer, CreateCartSerializer,
+                          CreateCartItemSerializer)
 from cart.models import Cart, CartItem
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -29,7 +30,24 @@ class CartView(APIView):
         serializer = CreateCartSerializer(data=request.data,
                                           context={'request': request})
         serializer.is_valid(raise_exception=True)
-        serializer.save(user=request.user)
+        serializer.save()
         return Response({'success': 'The cart has been created. Now you can add '
                          'an item to your cart.'},
                         status=status.HTTP_201_CREATED)
+
+
+class CartItemView(APIView):
+    """
+    A View for adding books to your cart.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        """A post method to add an item to cart."""
+        serializer = CreateCartItemSerializer(data=request.data,
+                                              context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'success': 'The item has been added to your cart.'
+                        ' Now you can create an order if your are done.'},
+                        status=status.HTTP_200_OK)

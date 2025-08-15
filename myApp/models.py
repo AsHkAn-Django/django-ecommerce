@@ -42,6 +42,11 @@ class Book(models.Model):
     def get_rates_number(self):
         return len(self.book_ratings.all())
 
+    def quantity_stock_check(self, quantity):
+        if quantity > self.stock:
+            raise ValueError(f"Only {self.stock} items available.")
+        return True
+
     def __str__(self):
         return self.title
 

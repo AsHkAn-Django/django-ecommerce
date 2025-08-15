@@ -43,6 +43,11 @@ def stripe_webhook(request):
             # Send recipt via email
             send_successful_payment_email.delay(order.id)
 
+            # recude the books from inventory
+            for item in order.items.all():
+                item.book.stock -= item.quantity
+                item.book.save()
+
             # clear cart
             cart = Cart.objects.filter(user=order.user).first()
             if cart:

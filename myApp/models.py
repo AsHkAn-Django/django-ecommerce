@@ -17,7 +17,8 @@ def book_image_upload_path(instance, filename):
 class Book(models.Model):
     title = models.CharField(max_length=264)
     author = models.CharField(max_length=264)
-    price = models.DecimalField(max_digits=6, decimal_places=2, validators=[MinValueValidator(0)])
+    price = models.DecimalField(max_digits=6, decimal_places=2,
+                                validators=[MinValueValidator(0)])
     stock = models.IntegerField(validators=[MinValueValidator(0)], default=0)
     image = models.ImageField(upload_to=book_image_upload_path, blank=True)
     description = models.CharField(max_length=264, null=True, blank=True)
@@ -47,8 +48,10 @@ class Book(models.Model):
 
 
 class Favorite(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_favorites')
-    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='book_favorites')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                             related_name='user_favorites')
+    book = models.ForeignKey(Book, on_delete=models.CASCADE,
+                             related_name='book_favorites')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -56,16 +59,20 @@ class Favorite(models.Model):
 
 
 class Rating(models.Model):
-    rate = models.DecimalField(max_digits=2, decimal_places=1, validators=(MaxValueValidator(5.0), MinValueValidator(1.0)))
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_ratings')
-    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='book_ratings')
+    rate = models.DecimalField(max_digits=2, decimal_places=1, validators=(
+        MaxValueValidator(5.0), MinValueValidator(1.0)))
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                             related_name='user_ratings')
+    book = models.ForeignKey(Book, on_delete=models.CASCADE,
+                             related_name='book_ratings')
     review = models.CharField(max_length=250, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         # Each user have one rating per book
         constraints = [
-            models.UniqueConstraint(fields=['book', 'user'], name='unnique_book_user_rating')
+            models.UniqueConstraint(fields=['book', 'user'],
+                                    name='unnique_book_user_rating')
         ]
 
     def __str__(self):

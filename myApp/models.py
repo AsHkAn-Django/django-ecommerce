@@ -13,7 +13,6 @@ def book_image_upload_path(instance, filename):
     return os.path.join('uploads', title_slug, filename)
 
 
-
 class Book(models.Model):
     title = models.CharField(max_length=264)
     author = models.CharField(max_length=264)

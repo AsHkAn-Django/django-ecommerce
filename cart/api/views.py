@@ -20,13 +20,13 @@ class CartAPIView(APIView):
         """Only for getting the list of the items in the cart with detail."""
         cart = get_object_or_404(Cart, user=request.user)
         cart_items = cart.items.all()
-        # We send request here to serializer for finding the user and his favorites
         serialized_items = CartItemSerializer(cart_items, many=True,
                                               context={'request': request})
         return Response(serialized_items.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         """For sending a post request to create a cart for user."""
+        # We send request here to serializer for assigning the user 
         serializer = CreateCartSerializer(data=request.data,
                                           context={'request': request})
         serializer.is_valid(raise_exception=True)

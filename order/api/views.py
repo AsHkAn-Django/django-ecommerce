@@ -7,10 +7,12 @@ from order.models import Order, OrderItem
 
 
 
-class OrderView(APIView):
+class OrderListAPIView(APIView):
+    """Get the list of your past orders."""
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        """Bring back all the past orders for this user."""
         order = Order.objects.filter(user=request.user)
         serialized_order = OrderSerializer(order, many=True)
         return Response(serialized_order.data, status=status.HTTP_200_OK)

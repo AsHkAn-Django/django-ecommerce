@@ -4,7 +4,7 @@
     <div class="container my-5">
         <h2 class="text-center mb-4">Shopping Cart</h2>
 
-        {% if cart %}
+        {% if cart.items.all %}
             <div class="table-responsive">
                 <table class="table table-bordered table-striped">
                     <thead class="thead-dark">

@@ -9,7 +9,7 @@ from rest_framework import status
 
 
 
-class CartView(APIView):
+class CartAPIView(APIView):
     """
     A View for getting the nested serializer of existed cart and
     cart items and also for creating a cart for user.
@@ -36,7 +36,7 @@ class CartView(APIView):
                         status=status.HTTP_201_CREATED)
 
 
-class CartItemView(APIView):
+class CartItemAPIView(APIView):
     """
     A View for adding books to your cart.
     """

@@ -7,6 +7,7 @@ from cart.models import Cart, CartItem
 from myApp.models import Book
 
 
+
 @require_POST
 def cart_add(request, pk):
     """Add a book to the cart for authenticated or session-based users."""
@@ -53,7 +54,7 @@ def cart_add(request, pk):
         request.session['cart'] = cart
         messages.success(request, "Item added to cart!")
         return redirect('cart:session_cart')
-    
+
 
 @login_required
 def cart_list(request):
@@ -78,6 +79,7 @@ def delete_item(request, pk):
     if request.user.is_authenticated:
         item = get_object_or_404(CartItem, pk=pk)
         item.delete()
+        messages.success(request, 'Item was deleted successfully.')
         return redirect('cart:cart_list')
 
     cart = request.session.get("cart", {})
@@ -86,5 +88,4 @@ def delete_item(request, pk):
         del cart[pk_str]
         request.session["cart"] = cart
         messages.success(request, 'Item was deleted successfully.')
-
     return redirect('cart:session_cart')

@@ -43,6 +43,8 @@ INSTALLED_APPS = [
 
     'django_bootstrap5',
     'rest_framework',
+    'drf_spectacular',
+    'drf_spectacular_sidecar',
 
     'myApp',
     'registration',
@@ -155,7 +157,8 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'user': '100/day',
         'anon': '10/minute',
-    }
+    },
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 # TODO: Or if you want a custom throthle you can use:

@@ -43,6 +43,4 @@ You can find more of my work here: [My GitHub](https://github.com/AsHkAn-Django)
 
 ## Tutorial
 
-COMING SOON!!!
 
----

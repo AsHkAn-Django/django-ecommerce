@@ -52,10 +52,16 @@ class Book(models.Model):
 
 
 class Favorite(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-                             related_name='user_favorites')
-    book = models.ForeignKey(Book, on_delete=models.CASCADE,
-                             related_name='book_favorites')
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='user_favorites'
+    )
+    book = models.ForeignKey(
+        Book,
+        on_delete=models.CASCADE,
+        related_name='book_favorites'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

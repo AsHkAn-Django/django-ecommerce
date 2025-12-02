@@ -71,7 +71,10 @@ class CreateOrderSerializer(serializers.ModelSerializer):
         # Move cart items into order
         for item in cart.items.all():
             OrderItem.objects.create(
-                order=order,book=item.book,quantity=item.quantity, price=item.book.price
+                order=order,
+                book=item.book,
+                quantity=item.quantity,
+                price=item.book.price
             )
 
         return order

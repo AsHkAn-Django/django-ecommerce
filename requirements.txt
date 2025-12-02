@@ -1,6 +1,7 @@
 amqp==5.3.1
 asgiref==3.8.1
 async-timeout==5.0.1
+attrs==25.3.0
 billiard==4.2.1
 Brotli==1.1.0
 celery==5.5.3
@@ -18,9 +19,14 @@ django-bootstrap5==25.1
 django-decouple==2.1
 djangorestframework==3.16.0
 djangorestframework_simplejwt==5.5.1
+drf-spectacular==0.28.0
+drf-spectacular-sidecar==2025.8.1
 fonttools==4.59.0
 idna==3.10
+inflection==0.5.1
 joblib==1.5.1
+jsonschema==4.25.1
+jsonschema-specifications==2025.4.1
 kombu==5.5.4
 numpy==1.24.3
 packaging==25.0
@@ -33,9 +39,12 @@ PyJWT==2.10.1
 pyphen==0.17.2
 python-dateutil==2.9.0.post0
 pytz==2025.2
+PyYAML==6.0.2
 qrcode==8.2
 redis==5.2.1
+referencing==0.36.2
 requests==2.32.4
+rpds-py==0.27.1
 scikit-surprise==1.1.4
 scipy==1.15.3
 six==1.17.0
@@ -45,9 +54,11 @@ tinycss2==1.4.0
 tinyhtml5==2.0.0
 typing_extensions==4.14.1
 tzdata==2025.2
+uritemplate==4.2.0
 urllib3==2.5.0
 vine==5.1.0
 wcwidth==0.2.13
 weasyprint==66.0
 webencodings==0.5.1
 zopfli==0.2.3.post1
+gunicorn

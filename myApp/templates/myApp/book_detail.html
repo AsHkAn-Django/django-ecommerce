@@ -62,10 +62,14 @@
               <a href="{% url 'myApp:rating' book.pk %}" class="btn btn-outline-info btn-sm">Rate this Product</a>
             {% endif %}
 
-            <a href="{% url 'myApp:purchase' book.pk %}" class="btn btn-primary btn-lg"
-               {% if book.stock == 0 %} disabled {% endif %}>
-              {% if book.stock > 0 %} Buy Now {% else %} Out of Stock {% endif %}
-            </a>
+            <form action="{% url 'cart:cart_add' book.pk %}" method="post" class="d-grid">
+              {% csrf_token %}
+              <input type="hidden" name="quantity" value="1">
+
+              <button type="submit" class="btn btn-primary btn-lg" {% if book.stock == 0 %}disabled{% endif %}>
+                {% if book.stock > 0 %} Buy Now {% else %} Out of Stock {% endif %}
+              </button>
+            </form>
 
             {% if user.is_staff %}
               <a href="{% url 'myApp:update_book' book.pk %}" class="btn btn-outline-secondary btn-sm">+ Add to Stock</a>

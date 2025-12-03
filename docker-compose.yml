@@ -13,9 +13,6 @@ services:
       - redis
     env_file:
       - .env
-    environment:
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/1
 
   redis:
     image: redis:alpine
@@ -29,24 +26,19 @@ services:
     command: celery -A bookStore worker --loglevel=info
     volumes:
       - .:/app
-    env_file:
-      - .env
     depends_on:
       - web
       - redis
       - db
-    environment:
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+    env_file:
+      - .env
 
   db:
     image: postgres:15
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_DB=mydb
-      - POSTGRES_USER=myuser
-      - POSTGRES_PASSWORD=mypassword
+    env_file:
+      - .env
 
 volumes:
   postgres_data:

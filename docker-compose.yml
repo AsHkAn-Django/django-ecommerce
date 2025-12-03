@@ -6,6 +6,7 @@ services:
     command: gunicorn --bind 0.0.0.0:8000 bookStore.wsgi:application
     volumes:
       - .:/app
+      - ./media:/app/media
     ports:
       - "8000:8000"
     depends_on:

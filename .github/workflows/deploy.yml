@@ -29,24 +29,17 @@ jobs:
         port: ${{ secrets.PORT }}
 
         # the script:
-        # go /home/django-ecommerce
+        script: |
+          cd /home/django-ecommerce
 
-        # discard any local changed and pull new code
-        git checkout .
-        git pull origin main
+          git checkout .
+          git pull origin main
 
-        # Restart Containers
-        # we use --build to ensure any changes to requirements.txt are installed
-        docker compose down
-        docker compose up -d --build
+          docker compose down
+          docker compose up -d --build
 
-        # run migrations
-        docker compose exec -T web python manage.py migrate
+          docker compose exec -T web python manage.py migrate
 
-        # Collect static files
-        docker compose exec -T web python manage.py collectstatic --noinput
+          docker compose exec -T web python manage.py collectstatic --noinput
 
-        # Cleanup
-        # docker leaves old 'dangling' images every time you rebuild
-        # this command deletes them so your vps disk doesn't fill up.
-        docker system prune -f
+          docker system prune -f

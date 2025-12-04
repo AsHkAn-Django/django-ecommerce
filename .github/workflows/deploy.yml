@@ -1,0 +1,52 @@
+# Name of the workflow (apears in github UI)
+name: Deploy to VPS
+
+# Trigger: when does this run?
+on:
+  push:
+    branches: ["main"]   # only run when code is pushed to the 'main' branch
+
+# the job definition
+jobs:
+  deploy:
+    name: Deploy Application
+    runs-on: ubuntu-latest    # github rents us a fresh ubuntu server for 1 minute to run this script
+
+    steps:
+    # the robot checks out the code to see if there are syntax errors.
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # the Magic. we use a pre-made action called 'ssh-action'
+    # this action knows how to ssh into servers so we don't have to write complex scripts.
+    - name: Connect and Deploy
+      uses: appleboy/ssh-action@master
+      with:
+        # we inject the secrets we saved in step 1
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
+
+        # the script:
+        # go /home/django-ecommerce
+
+        # discard any local changed and pull new code
+        git checkout .
+        git pull origin main
+
+        # Restart Containers
+        # we use --build to ensure any changes to requirements.txt are installed
+        docker compose down
+        docker compose up -d --build
+
+        # run migrations
+        docker compose exec -T web python manage.py migrate
+
+        # Collect static files
+        docker compose exec -T web python manage.py collectstatic --noinput
+
+        # Cleanup
+        # docker leaves old 'dangling' images every time you rebuild
+        # this command deletes them so your vps disk doesn't fill up.
+        docker system prune -f

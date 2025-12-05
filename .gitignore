@@ -3,6 +3,7 @@ TODOLIST.md
 *migrations/
 /staticfiles/
 .venv311/
+.idea/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

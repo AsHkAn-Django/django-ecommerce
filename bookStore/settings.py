@@ -38,6 +38,7 @@ CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', '').split(',')
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',      # Django Admin Theme
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -240,3 +241,25 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
+
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Ashkan E-Commerce",
+    "site_header": "Ashkan Admin",
+    "site_brand": "Ashkan Store",
+    "welcome_sign": "Welcome to the E-Commerce Command Center",
+    "copyright": "Codewithashkan Ltd",
+    "search_model": [
+        "registration.CustomUser",
+        "myApp.Book",
+        "myApp.Rating",
+    ],
+    "user_avatar": None,
+
+    "show_ui_builder": True,
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "theme": "flatly",
+    "navbar": "navbar-dark",
+}

@@ -3,6 +3,7 @@ version: '3.8'
 services:
   web:
     build: .
+    restart: always
     command: gunicorn --bind 0.0.0.0:8000 bookStore.wsgi:application
     volumes:
       - .:/app
@@ -17,12 +18,14 @@ services:
 
   redis:
     image: redis:alpine
+    restart: always
     container_name: redis_broker
     expose:
       - 6379
 
   celery:
     build: .
+    restart: always
     container_name: celery_worker
     command: celery -A bookStore worker --loglevel=info
     volumes:
@@ -36,6 +39,7 @@ services:
 
   db:
     image: postgres:15
+    restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:

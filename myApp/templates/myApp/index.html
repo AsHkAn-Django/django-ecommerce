@@ -1,60 +1,140 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block content %}
-<div class="container mt-4">
 
-  <div class="jumbotron bg-dark text-white p-5 rounded shadow">
-    <h1 class="display-4 text-center">Welcome to Book Store</h1>
-    <p class="lead text-center">
-      Easily add books to your cart, pay, and receive notification and invoice.
-    </p>
-    <div class="text-center mt-4">
-      {% if user.is_authenticated %}
-        <a href="{% url 'cart:cart_list' %}" class="btn btn-light btn-lg me-2">Visit Cart</a>
-      {% else %}
-        <a href="{% url 'cart:session_cart' %}" class="btn btn-light btn-lg me-2">Visit Cart</a>
-      {% endif %}
-      <a href="{% url 'myApp:shopping' %}" class="btn btn-outline-light btn-lg">See the Products</a>
+{% block content %}
+<div class="container py-4">
+
+  <div class="p-5 mb-5 rounded-4 text-white shadow"
+       style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); position: relative; overflow: hidden;">
+
+       <div style="position: absolute; top: -50px; right: -50px; opacity: 0.1;">
+           <i class="fa-solid fa-book-open fa-10x"></i>
+       </div>
+
+    <div class="row align-items-center position-relative" style="z-index: 1;">
+        <div class="col-lg-7">
+            <h1 class="display-4 fw-bold mb-3">Your Next Great Read Waits Here</h1>
+            <p class="lead mb-4 text-white-50" style="max-width: 500px;">
+                Secure payments, instant digital invoicing, and a curated collection of technical and fiction books. Experience the future of online bookstores.
+            </p>
+            <div class="d-flex gap-3">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'cart:cart_list' %}" class="btn btn-primary btn-lg fw-bold px-4">
+                        <i class="fa-solid fa-cart-shopping me-2"></i>Go to Cart
+                    </a>
+                {% else %}
+                    <a href="{% url 'cart:session_cart' %}" class="btn btn-light btn-lg fw-bold px-4">
+                        <i class="fa-solid fa-cart-shopping me-2"></i>Start Shopping
+                    </a>
+                {% endif %}
+                <a href="{% url 'myApp:shopping' %}" class="btn btn-outline-light btn-lg px-4">Browse All</a>
+            </div>
+        </div>
     </div>
   </div>
 
+  <div class="row g-4 py-4 mb-5 row-cols-1 row-cols-md-3">
+      <div class="col">
+          <div class="d-flex align-items-start p-3 rounded-3 border bg-light h-100">
+              <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; flex-shrink: 0;">
+                  <i class="fa-solid fa-lock fa-lg"></i>
+              </div>
+              <div>
+                  <h5 class="fw-bold mb-1">Secure Payments</h5>
+                  <p class="text-muted small mb-0">Transactions processed securely via Stripe with automated invoicing.</p>
+              </div>
+          </div>
+      </div>
+      <div class="col">
+          <div class="d-flex align-items-start p-3 rounded-3 border bg-light h-100">
+              <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; flex-shrink: 0;">
+                  <i class="fa-solid fa-bolt fa-lg"></i>
+              </div>
+              <div>
+                  <h5 class="fw-bold mb-1">Instant Processing</h5>
+                  <p class="text-muted small mb-0">Async task queues ensure your order is processed in milliseconds.</p>
+              </div>
+          </div>
+      </div>
+      <div class="col">
+          <div class="d-flex align-items-start p-3 rounded-3 border bg-light h-100">
+              <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; flex-shrink: 0;">
+                  <i class="fa-solid fa-headset fa-lg"></i>
+              </div>
+              <div>
+                  <h5 class="fw-bold mb-1">24/7 Support</h5>
+                  <p class="text-muted small mb-0">Our automated bot Uma is always online to help you with your orders.</p>
+              </div>
+          </div>
+      </div>
+  </div>
+
   {% if recommended_books %}
-    <h1 class="mt-4 my-5">Recommended for You</h1>
-    <div class="row row-cols-1 row-cols-md-3 g-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+        <h2 class="fw-bold m-0"><i class="fa-solid fa-fire text-danger me-2"></i>Recommended For You</h2>
+        <a href="{% url 'myApp:shopping' %}" class="text-decoration-none small fw-bold">View All <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
       {% for book in recommended_books %}
         <div class="col">
-          <div class="card h-100 shadow-sm">
-            <a href="{% url 'myApp:book_detail' book.pk %}">
-              {% if book.image %}
-                <img src="{{ book.image.url }}" class="card-img-top book-card-img" alt="{{ book.title }}">
-              {% else %}
-                <img src="{% static 'img/image.jpeg' %}" class="card-img-top book-card-img" alt="No image available">
-              {% endif %}
-            </a>
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title">
-                <a href="{% url 'myApp:book_detail' book.pk %}">{{ book.title }}</a>
+          <div class="card h-100 shadow-sm border-0 rounded-3 overflow-hidden">
+            <div class="position-relative">
+                <a href="{% url 'myApp:book_detail' book.pk %}">
+                  {% if book.image %}
+                    <img src="{{ book.image.url }}" class="card-img-top" style="height: 350px; object-fit: cover;" alt="{{ book.title }}">
+                  {% else %}
+                    <img src="{% static 'img/image.jpeg' %}" class="card-img-top" style="height: 350px; object-fit: cover;" alt="No image available">
+                  {% endif %}
+                </a>
+                <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-3 shadow-sm">Top Pick</span>
+
+                <div class="d-grid gap-2 p-2 bg-light border-top border-bottom">
+                    <a href="{% url 'myApp:book_detail' book.pk %}" class="btn btn-dark btn-sm fw-bold">
+                        View Details
+                    </a>
+                </div>
+            </div>
+
+            <div class="card-body">
+              <h5 class="card-title text-truncate fw-bold">
+                <a href="{% url 'myApp:book_detail' book.pk %}" class="text-dark text-decoration-none">{{ book.title }}</a>
               </h5>
-              <p class="card-text mb-2">
-                <strong>Author:</strong> {{ book.author }}<br>
-                <strong>Price:</strong> ${{ book.price }}
-              </p>
-              <div class="mt-auto">
-                <a href="{% url 'myApp:book_detail' book.pk %}" class="btn btn-sm btn-outline-primary">View Details</a>
+              <div class="d-flex justify-content-between align-items-center">
+                  <p class="card-text text-muted mb-0 small">by {{ book.author }}</p>
+                  <h5 class="text-primary fw-bold mb-0">${{ book.price }}</h5>
               </div>
             </div>
+
           </div>
         </div>
       {% endfor %}
     </div>
   {% else %}
-    <div class="alert alert-info mt-3">
-      No recommendations available.
+    <div class="alert alert-light border text-center p-5 mt-3 shadow-sm rounded-3">
+       <i class="fa-solid fa-book-open fa-3x text-muted mb-3"></i>
+       <h4>No recommendations yet</h4>
+       <p class="text-muted">Start browsing our catalog to see books picked just for you.</p>
+       <a href="{% url 'myApp:shopping' %}" class="btn btn-primary mt-2">Browse Books</a>
     </div>
   {% endif %}
 
-  <footer class="mt-5 text-center text-muted">
-    <p>&copy; {% now "Y" %} Task Manager. All rights reserved.</p>
+  <div class="bg-light p-5 rounded-4 text-center border mb-5">
+      <h3 class="fw-bold">Subscribe to our Newsletter</h3>
+      <p class="text-muted">Get the latest releases and tech book discounts directly to your inbox.</p>
+      <div class="row justify-content-center mt-3">
+          <div class="col-md-6">
+              <div class="input-group">
+                  <input type="email" class="form-control form-control-lg" placeholder="Enter your email...">
+                  <button class="btn btn-dark btn-lg" type="button">Subscribe</button>
+              </div>
+              <small class="text-muted mt-2 d-block">We respect your privacy. Unsubscribe at any time.</small>
+          </div>
+      </div>
+  </div>
+
+  <footer class="mt-5 text-center text-muted border-top pt-4">
+    <p>&copy; {% now "Y" %} Book Store Enterprise. All rights reserved.</p>
   </footer>
 </div>
 {% endblock content %}

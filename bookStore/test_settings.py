@@ -1,5 +1,5 @@
 from .settings import *  # noqa
-
+from .settings import BASE_DIR
 
 DATABASES = {
     "default": {

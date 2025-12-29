@@ -3,7 +3,7 @@ from .serializers import (
     CreateCartSerializer,
     CreateCartItemSerializer,
 )
-from cart.models import Cart, CartItem
+from cart.models import Cart
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404

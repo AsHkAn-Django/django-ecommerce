@@ -37,7 +37,7 @@ def send_successful_payment_email(order_id):
 
     # Define PDF filename
     pdf_filename = f"recipt_order_{order_id}.pdf"
-    pdf_path = os.path.join(pdf_output_dir, pdf_filename)
+    _ = os.path.join(pdf_output_dir, pdf_filename)
 
     # Load CSS for PDF if any
     stylesheets = [weasyprint.CSS(finders.find("css/pdf.css"))]

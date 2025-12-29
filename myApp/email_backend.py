@@ -5,11 +5,13 @@ from django.core.mail.backends.smtp import EmailBackend
 class UnverifiedEmailBackend(EmailBackend):
     """
     A custom email backend that ignores SSL certificate verification.
-    Use this ONLY for development/testing inside Docker if you have Antivirus/VPN issues.
+    Use this ONLY for development/testing inside Docker
+    if you have Antivirus/VPN issues.
     """
 
     def _get_ssl_context(self):
-        # This tells Python: "Don't verify the certificate, just trust it."
+        # This tells Python: "Don't verify the certificate
+        # just trust it."
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE

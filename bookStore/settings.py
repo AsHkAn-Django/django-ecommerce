@@ -117,7 +117,7 @@ else:
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",  # noqa: E501
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
@@ -231,7 +231,8 @@ CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:63
 
 
 # Email
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # run this one for production
+# run this one for production
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_BACKEND = (
     "myApp.email_backend.UnverifiedEmailBackend"  # run this one for developement
 )

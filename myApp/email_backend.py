@@ -7,6 +7,7 @@ class UnverifiedEmailBackend(EmailBackend):
     A custom email backend that ignores SSL certificate verification.
     Use this ONLY for development/testing inside Docker if you have Antivirus/VPN issues.
     """
+
     def _get_ssl_context(self):
         # This tells Python: "Don't verify the certificate, just trust it."
         ctx = ssl.create_default_context()

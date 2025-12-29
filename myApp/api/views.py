@@ -4,22 +4,21 @@ from .serializers import BookSerializer
 from .permissions import IsAdminOrReadOnly
 
 
-
 class BookViewset(viewsets.ModelViewSet):
     """
     A viewset with search and ordering.
     """
+
     serializer_class = BookSerializer
     permission_classes = (IsAdminOrReadOnly,)
 
-
     def get_queryset(self):
-        title = self.request.query_params.get('title')
+        title = self.request.query_params.get("title")
         qs = Book.objects.all()
         if title:
             qs = qs.filter(title__icontains=title)
 
-        ordering = self.request.query_params.get('ordering')
+        ordering = self.request.query_params.get("ordering")
         if ordering:
             qs = qs.order_by(ordering)
         return qs

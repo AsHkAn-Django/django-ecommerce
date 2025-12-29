@@ -7,7 +7,6 @@ from cart.models import Cart, CartItem
 from myApp.models import Book
 
 
-
 @require_POST
 def cart_add(request, pk):
     """Add a book to the cart for authenticated or session-based users."""
@@ -15,12 +14,12 @@ def cart_add(request, pk):
 
     # Get quantity from POST, default to 1, ensure it's a positive integer
     try:
-        quantity = int(request.POST.get('quantity', 1))
+        quantity = int(request.POST.get("quantity", 1))
         if quantity <= 0:
             raise ValueError
     except ValueError:
         messages.warning(request, "Invalid quantity.")
-        return redirect('myApp:shopping')
+        return redirect("myApp:shopping")
 
     # Determine current quantity in cart
     if request.user.is_authenticated:
@@ -28,7 +27,7 @@ def cart_add(request, pk):
         existing_item = CartItem.objects.filter(cart=cart, book=book).first()
         current_quantity = existing_item.quantity if existing_item else 0
     else:
-        cart = request.session.get('cart', {})
+        cart = request.session.get("cart", {})
         pk_str = str(pk)
         current_quantity = int(cart.get(pk_str, 0))
 
@@ -40,7 +39,7 @@ def cart_add(request, pk):
         book.quantity_stock_check(total_quantity)
     except ValueError as e:
         messages.warning(request, str(e))
-        return redirect('myApp:shopping')
+        return redirect("myApp:shopping")
 
     # Update cart
     if request.user.is_authenticated:
@@ -48,30 +47,33 @@ def cart_add(request, pk):
         cart_item.quantity = total_quantity
         cart_item.save()
         messages.success(request, "Item added to the cart.")
-        return redirect('cart:cart_list')
+        return redirect("cart:cart_list")
     else:
         cart[pk_str] = total_quantity
-        request.session['cart'] = cart
+        request.session["cart"] = cart
         messages.success(request, "Item added to cart!")
-        return redirect('cart:session_cart')
+        return redirect("cart:session_cart")
 
 
 @login_required
 def cart_list(request):
     """Display the cart for authenticated users."""
     cart = get_object_or_404(
-        Cart.objects.prefetch_related('items__book'),
-        user=request.user
+        Cart.objects.prefetch_related("items__book"), user=request.user
     )
-    return render(request, 'cart/cart_list.html', {'cart': cart})
+    return render(request, "cart/cart_list.html", {"cart": cart})
 
 
 def session_cart_view(request):
     """Display the cart for session-based users."""
     cart = request.session.get("cart", {})
-    cart_items = [(get_object_or_404(Book, pk=int(pk)), qty) for pk, qty in cart.items()]
+    cart_items = [
+        (get_object_or_404(Book, pk=int(pk)), qty) for pk, qty in cart.items()
+    ]
     total = sum(book.price * qty for book, qty in cart_items)
-    return render(request, 'cart/session_cart.html', {'items': cart_items, 'total': total})
+    return render(
+        request, "cart/session_cart.html", {"items": cart_items, "total": total}
+    )
 
 
 def delete_item(request, pk):
@@ -79,13 +81,13 @@ def delete_item(request, pk):
     if request.user.is_authenticated:
         item = get_object_or_404(CartItem, pk=pk)
         item.delete()
-        messages.success(request, 'Item was deleted successfully.')
-        return redirect('cart:cart_list')
+        messages.success(request, "Item was deleted successfully.")
+        return redirect("cart:cart_list")
 
     cart = request.session.get("cart", {})
     pk_str = str(pk)
     if pk_str in cart:
         del cart[pk_str]
         request.session["cart"] = cart
-        messages.success(request, 'Item was deleted successfully.')
-    return redirect('cart:session_cart')
+        messages.success(request, "Item was deleted successfully.")
+    return redirect("cart:session_cart")

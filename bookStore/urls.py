@@ -14,28 +14,32 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
-
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularSwaggerView,
+    SpectacularRedocView,
+)
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('accounts/', include('registration.urls')),
-    path('schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
-    path('api/v1/', include('myApp.api.urls', namespace='myApp_api')),
-    path('cart/', include('cart.urls', namespace='cart')),
-    path('api/v1/', include('cart.api.urls', namespace='cart_api')),
-    path('api/v1/', include('order.api.urls', namespace='order_api')),
-    path('api/v1/', include('payment.api.urls', namespace='payment_api')),
-    path('order/', include('order.urls', namespace='order')),
-    path('payment/', include('payment.urls', namespace='payment')),
-    path('', include('myApp.urls', namespace='myApp')),
+    path("admin/", admin.site.urls),
+    path("accounts/", include("registration.urls")),
+    path("schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+    path("redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
+    path("api/v1/", include("myApp.api.urls", namespace="myApp_api")),
+    path("cart/", include("cart.urls", namespace="cart")),
+    path("api/v1/", include("cart.api.urls", namespace="cart_api")),
+    path("api/v1/", include("order.api.urls", namespace="order_api")),
+    path("api/v1/", include("payment.api.urls", namespace="payment_api")),
+    path("order/", include("order.urls", namespace="order")),
+    path("payment/", include("payment.urls", namespace="payment")),
+    path("", include("myApp.urls", namespace="myApp")),
 ]
 
 if settings.DEBUG:

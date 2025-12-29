@@ -5,15 +5,12 @@ from cart.api.serializers import MiniBookSerializer
 from django.db import transaction
 
 
-
 class OrderItemSerializer(serializers.ModelSerializer):
     book = MiniBookSerializer()
 
     class Meta:
         model = OrderItem
-        fields = ['id', 'book', 'price', 'quantity']
-
-
+        fields = ["id", "book", "price", "quantity"]
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -24,11 +21,22 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = [
-            'id', 'first_name', 'last_name', 'email', 'created_at',
-            'updated_at', 'total_quantity', 'total_cost', 'items'
+            "id",
+            "first_name",
+            "last_name",
+            "email",
+            "created_at",
+            "updated_at",
+            "total_quantity",
+            "total_cost",
+            "items",
         ]
         read_only_fields = [
-            'id', 'created_at', 'updated_at', 'total_quantity', 'total_cost'
+            "id",
+            "created_at",
+            "updated_at",
+            "total_quantity",
+            "total_cost",
         ]
 
     def get_total_cost(self, obj):
@@ -41,10 +49,10 @@ class OrderSerializer(serializers.ModelSerializer):
 class CreateOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = ['first_name', 'last_name', 'email']
+        fields = ["first_name", "last_name", "email"]
 
     def validate(self, attrs):
-        user = self.context['request'].user
+        user = self.context["request"].user
 
         try:
             cart = Cart.objects.get(user=user)
@@ -61,7 +69,7 @@ class CreateOrderSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        user = self.context['request'].user
+        user = self.context["request"].user
         # retrieve the cart and lock it until transaction finishes
         cart = Cart.objects.select_for_update().get(user=user)
 
@@ -74,9 +82,7 @@ class CreateOrderSerializer(serializers.ModelSerializer):
                 order=order,
                 book=item.book,
                 quantity=item.quantity,
-                price=item.book.price
+                price=item.book.price,
             )
 
         return order
-
-

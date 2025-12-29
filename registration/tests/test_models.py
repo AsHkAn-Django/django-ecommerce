@@ -10,12 +10,10 @@ def test_create_user():
     """
     Test that a user is created successfully with the correct email and password.
     """
-    email = 'normal@user.com'
-    password = 'foo'
-    user  = User.objects.create_user(
-        email=email,
-        password=password,
-        full_name='Normal User'
+    email = "normal@user.com"
+    password = "foo"
+    user = User.objects.create_user(
+        email=email, password=password, full_name="Normal User"
     )
 
     assert user.email == email
@@ -30,12 +28,10 @@ def test_create_superuser():
     """
     Test that a superuser has is_staff and is_superuser set to True.
     """
-    email = 'super@user.com'
-    password = 'foo'
+    email = "super@user.com"
+    password = "foo"
     admin_user = User.objects.create_superuser(
-        email=email,
-        password=password,
-        full_name='Super User'
+        email=email, password=password, full_name="Super User"
     )
 
     assert admin_user.email == email
@@ -48,12 +44,9 @@ def test_create_superuser():
 def test_create_user_without_email_raises_error():
     """Test that creating a user without an email raises a ValueError."""
     with pytest.raises(ValueError) as err:
-        User.objects.create_user(
-            email=None,
-            password='foo'
-        )
+        User.objects.create_user(email=None, password="foo")
 
-    assert str(err.value) == 'Users must have an email address'
+    assert str(err.value) == "Users must have an email address"
 
 
 @pytest.mark.django_db

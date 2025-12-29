@@ -1,45 +1,72 @@
-# Name of the workflow (apears in github UI)
-name: Deploy to VPS
+name: CI/CD Pipeline
 
-# Trigger: when does this run?
+# Trigger on push to main OR when someone opens a Pull Request
 on:
   push:
-    branches: ["main"]   # only run when code is pushed to the 'main' branch
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
 
-# the job definition
 jobs:
-  deploy:
-    name: Deploy Application
-    runs-on: ubuntu-latest    # github rents us a fresh ubuntu server for 1 minute to run this script
-
+  # JOB 1: Continuous Integration (Test & Lint)
+  test:
+    name: Test and Lint
+    runs-on: ubuntu-latest
     steps:
-    # the robot checks out the code to see if there are syntax errors.
-    - name: Checkout Code
-      uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    # the Magic. we use a pre-made action called 'ssh-action'
-    # this action knows how to ssh into servers so we don't have to write complex scripts.
-    - name: Connect and Deploy
-      uses: appleboy/ssh-action@master
-      with:
-        # we inject the secrets we saved in step 1
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.PASSWORD }}
-        port: ${{ secrets.PORT }}
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-        # the script:
-        script: |
-          cd /home/django-ecommerce
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 black pytest pytest-django
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-          git checkout .
-          git pull origin main
+      - name: Run Black (Formatting Check)
+        # "--check" means it fails if files are not formatted, but doesn't change them
+        run: black --check .
 
-          docker compose down
-          docker compose up -d --build
+      - name: Run Flake8 (Linting)
+        run: flake8 .
 
-          docker compose exec -T web python manage.py migrate
+      - name: Run Tests
+        # We use SQLite settings so we don't need a real Postgres container here!
+        env:
+          DJANGO_SETTINGS_MODULE: bookStore.test_settings
+          SECRET_KEY: "dummy-secret-for-tests"
+        run: pytest
 
-          docker compose exec -T web python manage.py collectstatic --noinput
+  # JOB 2: Continuous Deployment (Only runs if tests pass)
+  deploy:
+    name: Deploy to VPS
+    needs: test   # <--- CRITICAL: This connects the two jobs
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'  # Don't deploy on PRs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-          docker system prune -f
+      - name: Connect and Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd /home/django-ecommerce
+            git checkout .
+            git pull origin main
+
+            # Rebuild ensures new dependencies (like flake8) are installed inside container
+            docker compose down
+            docker compose up -d --build
+
+            docker compose exec -T web python manage.py migrate
+            docker compose exec -T web python manage.py collectstatic --noinput
+            docker system prune -f

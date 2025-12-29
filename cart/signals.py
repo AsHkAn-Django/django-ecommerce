@@ -8,7 +8,7 @@ def merge_carts_on_login(sender, user, request, **kwargs):
     """
     Merge session cart into authenticated user's cart after login.
     """
-    session_cart = request.session.get('cart', {})
+    session_cart = request.session.get("cart", {})
 
     if not session_cart:
         return  # No guest cart to merge
@@ -26,5 +26,4 @@ def merge_carts_on_login(sender, user, request, **kwargs):
         item.save()
 
     # Clear session cart
-    request.session['cart'] = {}
-
+    request.session["cart"] = {}

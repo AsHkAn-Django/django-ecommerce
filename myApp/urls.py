@@ -13,5 +13,6 @@ urlpatterns = [
         name="add_to_favorite",
     ),
     path("book/<int:pk>/", views.BookDetailView.as_view(), name="book_detail"),
+    path("favorites/", views.FavoriteListView.as_view(), name="favorite_list"),
     path("", views.IndexView.as_view(), name="home"),
 ]

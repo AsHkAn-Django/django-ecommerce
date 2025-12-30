@@ -62,7 +62,7 @@ class Favorite(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} added {self.book.title}"
+        return f"{self.user.email} added {self.book.title}"
 
 
 class Rating(models.Model):
@@ -89,4 +89,4 @@ class Rating(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.user.username} rated {self.rate} to {self.book.title}"
+        return f"{self.user.email} rated {self.rate} to {self.book.title}"

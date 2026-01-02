@@ -9,6 +9,10 @@ from cart.models import CartItem
 @login_required
 def order_create(request):
     cart_items = CartItem.objects.filter(cart__user=request.user)
+
+    if not cart_items.exists():
+        return redirect("myApp:shopping")
+
     if request.method == "POST":
         form = OrderForm(request.POST)
         if form.is_valid():

@@ -14,7 +14,7 @@ def merge_carts_on_login(sender, user, request, **kwargs):
         return  # No guest cart to merge
 
     # Get or create user's cart
-    user_cart, create = Cart.objects.get_or_create(user=user)
+    user_cart, _ = Cart.objects.get_or_create(user=user)
 
     for book_id, quantity in session_cart.items():
         # Get or create cart item

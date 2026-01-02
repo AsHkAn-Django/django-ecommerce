@@ -58,9 +58,10 @@ def cart_add(request, pk):
 @login_required
 def cart_list(request):
     """Display the cart for authenticated users."""
-    cart = get_object_or_404(
-        Cart.objects.prefetch_related("items__book"), user=request.user
-    )
+    cart, created = Cart.objects.get_or_create(user=request.user)
+    if not created:
+        cart = Cart.objects.prefetch_related("items__book").get(id=cart.id)
+
     return render(request, "cart/cart_list.html", {"cart": cart})
 
 
@@ -79,11 +80,14 @@ def session_cart_view(request):
 def delete_item(request, pk):
     """Delete an item from the cart (auth or session-based)."""
     if request.user.is_authenticated:
-        item = get_object_or_404(CartItem, pk=pk)
+        # Ensure the item belongs to the current user's cart
+        # We query CartItem where cart__user is the request.user
+        item = get_object_or_404(CartItem, pk=pk, cart__user=request.user)
         item.delete()
         messages.success(request, "Item was deleted successfully.")
         return redirect("cart:cart_list")
 
+    # (Session logic remains the same)
     cart = request.session.get("cart", {})
     pk_str = str(pk)
     if pk_str in cart:

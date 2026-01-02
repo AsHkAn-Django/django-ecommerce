@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 
 from .models import Book, Favorite, Rating
 from .forms import RatingForm
-from .recommned import get_top_n_recommendations
+from .recommend import get_top_n_recommendations
 
 
 class ShoppingListView(generic.ListView):

@@ -21,10 +21,20 @@ def scrape_amazon_product(url):
         try:
             page.goto(url, timeout=60000)
 
-            # Title
+            # 1. Title
             title = page.locator("#productTitle").first.inner_text().strip()
 
-            # Price
+            # 2. Author / Brand (NEW LOGIC)
+            author = "Unknown Brand"
+            if page.locator("#bylineInfo").count() > 0:
+                raw_author = page.locator("#bylineInfo").first.inner_text().strip()
+                # Clean up "Visit the Apple Store" -> "Apple"
+                # Remove "Visit the", "Store", "Brand:" (case insensitive)
+                author = re.sub(
+                    r"(?i)(Visit the | Store|Brand: )", "", raw_author
+                ).strip()
+
+            # 3. Price
             price_text = "0.00"
             if page.locator(".a-price-whole").count() > 0:
                 whole = page.locator(".a-price-whole").first.inner_text().strip()
@@ -34,18 +44,19 @@ def scrape_amazon_product(url):
 
             price = float(re.sub(r"[^\d.]", "", price_text))
 
-            # Image URL
+            # 4. Image URL
             image_url = ""
             if page.locator("#landingImage").count() > 0:
                 image_url = page.locator("#landingImage").first.get_attribute("src")
 
             scraped_data = {
                 "title": title,
+                "author": author,  # <--- Saving the real author
                 "price": price,
                 "image_url": image_url,
                 "user_agent": user_agent,
             }
-            print(f"celery_worker: ✅ Scraped: {title[:30]}...")
+            print(f"celery_worker: ✅ Scraped: {title[:20]}... by {author}")
 
         except Exception as e:
             print(f"celery_worker: ❌ Scraping Error: {e}")
@@ -54,12 +65,10 @@ def scrape_amazon_product(url):
 
     # --- 2. SAVING PHASE ---
     if scraped_data:
-        # We MUST provide an 'author' because your model requires it.
-        # We use 'Amazon Product' as a placeholder.
         book, created = Book.objects.get_or_create(
             title=scraped_data["title"],
             defaults={
-                "author": "Amazon Product",  # <--- FIXED: Added required field
+                "author": scraped_data["author"],  # <--- Using the real author
                 "price": scraped_data["price"],
                 "description": "Imported from Amazon.",
                 "stock": 10,
@@ -68,25 +77,21 @@ def scrape_amazon_product(url):
 
         # --- 3. IMAGE DOWNLOAD PHASE ---
         if scraped_data["image_url"]:
-            print("celery_worker: 📸 Downloading image...")
-            try:
-                headers = {"User-Agent": scraped_data["user_agent"]}
-                response = requests.get(scraped_data["image_url"], headers=headers)
+            # Check if image is missing OR if we just created the book
+            if not book.image or created:
+                print("celery_worker: 📸 Downloading image...")
+                try:
+                    headers = {"User-Agent": scraped_data["user_agent"]}
+                    response = requests.get(scraped_data["image_url"], headers=headers)
 
-                if response.status_code == 200:
-                    # Create a filename based on the title (e.g., "amd-ryzen.jpg")
-                    filename = (
-                        f"{scraped_data['title'][:20].replace(' ', '-').lower()}.jpg"
-                    )
-
-                    # This .save() triggers your 'book_image_upload_path' automatically!
-                    book.image.save(filename, ContentFile(response.content), save=True)
-
-                    print("celery_worker: 💾 Image saved to uploads folder!")
-                else:
-                    print(f"celery_worker: ⚠️ Download failed: {response.status_code}")
-            except Exception as e:
-                print(f"celery_worker: ⚠️ Image Error: {e}")
+                    if response.status_code == 200:
+                        filename = f"{scraped_data['title'][:20].replace(' ', '-').lower()}.jpg"  # noqa
+                        book.image.save(
+                            filename, ContentFile(response.content), save=True
+                        )
+                        print("celery_worker: 💾 Image saved!")
+                except Exception as e:
+                    print(f"celery_worker: ⚠️ Image Error: {e}")
 
         return f"Finished: {book.title}"
 

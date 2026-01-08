@@ -1,0 +1,12 @@
+{% extends 'admin/change_list.html' %}
+{% load i18n %}
+
+{% block object-tools-items %}
+    <li>
+        <a href="import-amazon/" class="btn btn-info btn-sm" style="margin-right: 5px;">
+            <i class="fas fa-file-import"></i> Import from Amazon
+        </a>
+    </li>
+
+    {{ block.super }}
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block content %}
+<div class="col-12 col-md-8">
+    <div class="card card-primary card-outline">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-file-import"></i> Import Product from Amazon</h3>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="url">Amazon URL</label>
+                    <input type="url" name="amazon_url" class="form-control" id="url" placeholder="https://www.amazon.com/dp/..." required>
+                    <small class="form-text text-muted">Paste the full link. The system will download the title, price, and image automatically.</small>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-check"></i> Start Import
+                </button>
+                <a href="../" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

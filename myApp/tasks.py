@@ -67,7 +67,7 @@ def scrape_amazon_product(url):
         )
 
         # --- 3. IMAGE DOWNLOAD PHASE ---
-        if created and scraped_data["image_url"]:
+        if scraped_data["image_url"]:
             print("celery_worker: 📸 Downloading image...")
             try:
                 headers = {"User-Agent": scraped_data["user_agent"]}

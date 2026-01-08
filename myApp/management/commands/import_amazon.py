@@ -36,6 +36,7 @@ class Command(BaseCommand):
                     fraction = (
                         page.locator(".a-price-fraction").first.inner_text().strip()
                     )
+                    whole = whole.replace(".", "")
                     price_text = f"{whole}.{fraction}"
 
                 # Clean price string (remove currency symbols)

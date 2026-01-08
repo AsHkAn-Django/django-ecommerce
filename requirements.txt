@@ -69,3 +69,7 @@ pytest
 pytest-django
 flake8
 black
+playwright
+beautifulsoup4
+lxml
+fake-useragent

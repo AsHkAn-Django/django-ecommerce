@@ -5,94 +5,108 @@ from playwright.sync_api import sync_playwright
 from django.core.files.base import ContentFile
 from .models import Book
 
-
 @shared_task
 def scrape_amazon_product(url):
-    print(f"celery_worker: 🕵️‍♂️ Starting background scrape for: {url}")
-
+    print(f"celery_worker: 🕵️‍♂️ Starting robust scrape for: {url}")
     scraped_data = None
 
-    # --- 1. SCRAPING PHASE ---
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
-        user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"  # noqa
+        user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
         page = browser.new_page(user_agent=user_agent)
 
         try:
-            page.goto(url, timeout=60000)
+            page.goto(url, timeout=60000, wait_until="domcontentloaded")
 
-            # 1. Title
+            # --- 1. TITLE ---
             title = page.locator("#productTitle").first.inner_text().strip()
 
-            # 2. Author / Brand (NEW LOGIC)
-            author = "Unknown Brand"
-            if page.locator("#bylineInfo").count() > 0:
-                raw_author = page.locator("#bylineInfo").first.inner_text().strip()
-                # Clean up "Visit the Apple Store" -> "Apple"
-                # Remove "Visit the", "Store", "Brand:" (case insensitive)
-                author = re.sub(
-                    r"(?i)(Visit the | Store|Brand: )", "", raw_author
-                ).strip()
+            # --- 2. AUTHOR (Improved Cleaning) ---
+            author = "Unknown"
+            author_selectors = ["#bylineInfo", "#author_name", ".contributorNameID"]
+            for selector in author_selectors:
+                if page.locator(selector).count() > 0:
+                    raw_author = page.locator(selector).first.inner_text().strip()
+                    # Clean "by Stephen Covey (Author) Format:..." -> "Stephen Covey"
+                    clean_author = re.sub(r'(?i)(by |Visit the | Store|Brand: |\s*\(Author\)|\s*Format:.*)', '', raw_author)
+                    author = clean_author.strip()
+                    break
 
-            # 3. Price
-            price_text = "0.00"
-            if page.locator(".a-price-whole").count() > 0:
-                whole = page.locator(".a-price-whole").first.inner_text().strip()
-                fraction = page.locator(".a-price-fraction").first.inner_text().strip()
-                whole = whole.replace(".", "")
-                price_text = f"{whole}.{fraction}"
+            # --- 3. PRICE (Fallback Strategy) ---
+            price = 0.00
+            # Order of preference: Discounted Apex -> Whole/Fraction -> Offscreen text
+            price_selectors = [
+                ".a-price.aok-align-center", # The div you found
+                "#price_inside_buybox",
+                "#kindle-price",
+                ".a-price"
+            ]
 
-            price = float(re.sub(r"[^\d.]", "", price_text))
+            for selector in price_selectors:
+                loc = page.locator(selector).first
+                if loc.count() > 0:
+                    text = loc.inner_text()
+                    # Find any pattern like 11.99 or 11,99
+                    found = re.findall(r'\d+[.,]\d{2}', text)
+                    if found:
+                        price = float(found[0].replace(',', '.'))
+                        break
 
-            # 4. Image URL
+            # Final fallback: Check the specific "aok-offscreen" you mentioned
+            if price == 0.00 and page.locator(".aok-offscreen").count() > 0:
+                offscreen_text = page.locator(".aok-offscreen").first.inner_text()
+                found = re.findall(r'\$\s*(\d+\.\d{2})', offscreen_text)
+                if found:
+                    price = float(found[0])
+
+            # --- 4. IMAGE (Fallback Strategy) ---
             image_url = ""
-            if page.locator("#landingImage").count() > 0:
-                image_url = page.locator("#landingImage").first.get_attribute("src")
+            img_selectors = ["#landingImage", "#imgBlkFront", "#main-image", "#ebooksImgBlkFront"]
+            for selector in img_selectors:
+                if page.locator(selector).count() > 0:
+                    image_url = page.locator(selector).first.get_attribute("src")
+                    if image_url: break
 
             scraped_data = {
-                "title": title,
-                "author": author,  # <--- Saving the real author
-                "price": price,
-                "image_url": image_url,
-                "user_agent": user_agent,
+                'title': title,
+                'author': author,
+                'price': price,
+                'image_url': image_url,
+                'user_agent': user_agent
             }
-            print(f"celery_worker: ✅ Scraped: {title[:20]}... by {author}")
+            print(f"celery_worker: ✅ Scraped: {title[:20]} | ${price} | Author: {author}")
 
         except Exception as e:
-            print(f"celery_worker: ❌ Scraping Error: {e}")
+            print(f"celery_worker: ❌ Error: {e}")
         finally:
             browser.close()
 
-    # --- 2. SAVING PHASE ---
+    # --- SAVING PHASE ---
     if scraped_data:
         book, created = Book.objects.get_or_create(
-            title=scraped_data["title"],
+            title=scraped_data['title'],
             defaults={
-                "author": scraped_data["author"],  # <--- Using the real author
-                "price": scraped_data["price"],
-                "description": "Imported from Amazon.",
-                "stock": 10,
-            },
+                'author': scraped_data['author'],
+                'price': scraped_data['price'],
+                'description': "Imported via AI Scraper.",
+                'stock': 10,
+            }
         )
 
-        # --- 3. IMAGE DOWNLOAD PHASE ---
-        if scraped_data["image_url"]:
-            # Check if image is missing OR if we just created the book
-            if not book.image or created:
-                print("celery_worker: 📸 Downloading image...")
-                try:
-                    headers = {"User-Agent": scraped_data["user_agent"]}
-                    response = requests.get(scraped_data["image_url"], headers=headers)
+        # Always update price even if not created
+        if not created:
+            book.price = scraped_data['price']
+            book.save()
 
-                    if response.status_code == 200:
-                        filename = f"{scraped_data['title'][:20].replace(' ', '-').lower()}.jpg"  # noqa
-                        book.image.save(
-                            filename, ContentFile(response.content), save=True
-                        )
-                        print("celery_worker: 💾 Image saved!")
-                except Exception as e:
-                    print(f"celery_worker: ⚠️ Image Error: {e}")
+        if scraped_data['image_url']:
+            print(f"celery_worker: 📸 Downloading image...")
+            try:
+                # Use headers to avoid 403 Forbidden on image download
+                res = requests.get(scraped_data['image_url'], headers={'User-Agent': scraped_data['user_agent']})
+                if res.status_code == 200:
+                    filename = f"{slugify(book.title)[:20]}.jpg"
+                    book.image.save(filename, ContentFile(res.content), save=True)
+            except Exception as e:
+                 print(f"celery_worker: ⚠️ Image Error: {e}")
 
-        return f"Finished: {book.title}"
-
-    return "Failed to scrape"
+        return f"Done: {book.title}"

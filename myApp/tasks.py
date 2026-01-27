@@ -27,14 +27,18 @@ def scrape_amazon_product(url):
             # or captcha page with no product DOM.
             content_snapshot = page.content()
 
-            # Captcha / bot challenge
+            # Captcha / bot challenge — log but try to continue so we behave
+            # closer to the original "best effort" scraper.
             if (
                 page.locator(
                     'input#captchacharacters, form[action*="validateCaptcha"]'
                 ).count()
                 > 0
             ):
-                raise Exception("Amazon captcha / bot challenge detected")
+                print(
+                    "celery_worker: ⚠️ Amazon captcha / bot challenge detected, "
+                    "attempting best-effort scrape anyway"
+                )
 
             # Interstitial / "Continue shopping" page with no product DOM
             if (
@@ -44,10 +48,34 @@ def scrape_amazon_product(url):
                 raise Exception("Amazon interstitial / continue shopping page returned")
 
             # --- 1. TITLE ---
-            title_loc = page.locator("#productTitle")
-            if title_loc.count() == 0:
-                raise Exception("Could not find product title (#productTitle missing)")
-            title = title_loc.first.inner_text().strip()
+            # Some Amazon templates move the title around; try a small set of
+            # reasonable selectors before giving up.
+            title = None
+            title_selectors = [
+                "#productTitle",
+                '[data-feature-name="title"] h1 span',
+                "h1 span#productTitle",
+                "h1 span.a-size-large",
+                "h1#title span",
+            ]
+            for sel in title_selectors:
+                loc = page.locator(sel)
+                if loc.count() > 0:
+                    title = loc.first.inner_text().strip()
+                    break
+
+            # Last‑resort: fall back to the document <title> text, if present
+            if not title:
+                try:
+                    doc_title = page.title()
+                except Exception:
+                    doc_title = ""
+                if doc_title:
+                    # Often looks like "Book Name: Subtitle: Author: Amazon.com: Books"
+                    title = doc_title.split(":")[0].strip()
+
+            if not title:
+                raise Exception("Could not find product title using known selectors")
 
             # --- 2. AUTHOR (Improved Cleaning) ---
             author = "Unknown"

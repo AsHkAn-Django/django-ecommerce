@@ -23,17 +23,24 @@ def scrape_amazon_product(url):
             page.wait_for_timeout(3000)
 
             # --- 0. BASIC BOT / INTERSTITIAL / CAPTCHA DETECTION ---
-            # Some Amazon URLs first render a "Continue shopping" or captcha page with no product DOM.
+            # Some Amazon URLs first render a "Continue shopping"
+            # or captcha page with no product DOM.
             content_snapshot = page.content()
 
             # Captcha / bot challenge
-            if page.locator(
-                'input#captchacharacters, form[action*="validateCaptcha"]'
-            ).count() > 0:
+            if (
+                page.locator(
+                    'input#captchacharacters, form[action*="validateCaptcha"]'
+                ).count()
+                > 0
+            ):
                 raise Exception("Amazon captcha / bot challenge detected")
 
             # Interstitial / "Continue shopping" page with no product DOM
-            if "Continue shopping" in content_snapshot and "productTitle" not in content_snapshot:
+            if (
+                "Continue shopping" in content_snapshot
+                and "productTitle" not in content_snapshot
+            ):
                 raise Exception("Amazon interstitial / continue shopping page returned")
 
             # --- 1. TITLE ---
@@ -58,25 +65,27 @@ def scrape_amazon_product(url):
                     break
 
             # --- 3. PRICE (Format-Aware Strategy) ---
-            # Helper to extract float from any price-like text ("13.59", "13,59", "$13.59", "1,299.99", etc.)
+            # Helper to extract float from any price-like text
+            # ("13.59", "13,59", "$13.59", "1,299.99", etc.)
             def _parse_price(text: str):
                 if not text:
                     return None
                 # Normalize non-breaking spaces
                 text = text.replace("\u00a0", " ")
 
-                # Match prices with optional thousands separators and 2 decimals, e.g. 1,299.99 or 1.299,99
-                candidates = re.findall(
-                    r"\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})", text
-                )
+                # Match prices with optional thousands separators and 2 decimals,
+                # e.g. 1,299.99 or 1.299,99
+                candidates = re.findall(r"\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})", text)
                 if not candidates:
                     # If we can’t find a decimal price, treat as not-a-price.
                     return None
 
-                # Heuristic: use the last price-like token (often the final/discounted price)
+                # Heuristic: use the last price-like token
+                # (often the final/discounted price)
                 value_str = candidates[-1]
 
-                # If both '.' and ',' appear, treat the last separator as decimal and all others as thousands
+                # If both '.' and ',' appear, treat the last separator as decimal
+                # and all others as thousands
                 if "," in value_str and "." in value_str:
                     last_sep = max(value_str.rfind(","), value_str.rfind("."))
                     int_part = re.sub(r"[.,]", "", value_str[:last_sep])
@@ -108,11 +117,14 @@ def scrape_amazon_product(url):
 
             price = None
 
-            # 3.1 Prefer specific book formats in order: Paperback > Hardcover > everything else.
+            # 3.1 Prefer specific book formats in order:
+            # Paperback > Hardcover > everything else.
             preferred_order = ["paperback", "hardcover"]
 
-            # Many book pages have a "formats" section (e.g. #tmmSwatches li for each format).
-            # Strategy: click the desired swatch (Paperback / Hardcover) and then read the main core price block.
+            # Many book pages have a "formats" section
+            # (e.g. #tmmSwatches li for each format).
+            # Strategy: click the desired swatch (Paperback / Hardcover)
+            # and then read the main core price block.
             swatch_locator = page.locator("#tmmSwatches li")
             swatch_count = swatch_locator.count()
             if swatch_count == 0:
@@ -174,7 +186,8 @@ def scrape_amazon_product(url):
                         price = parsed
                         break
 
-            # If absolutely nothing matched, default to 0.00 so calling code won't explode
+            # If absolutely nothing matched,
+            # default to 0.00 so calling code won't explode
             if price is None:
                 price = 0.00
 

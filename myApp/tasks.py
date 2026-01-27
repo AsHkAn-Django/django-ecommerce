@@ -108,25 +108,29 @@ def scrape_amazon_product(url):
                     # If we can’t find a decimal price, treat as not-a-price.
                     return None
 
-                # Heuristic: use the last price-like token
-                # (often the final/discounted price)
-                value_str = candidates[-1]
+                values = []
+                for value_str in candidates:
+                    # If both '.' and ',' appear, treat the last separator as decimal
+                    # and all others as thousands
+                    if "," in value_str and "." in value_str:
+                        last_sep = max(value_str.rfind(","), value_str.rfind("."))
+                        int_part = re.sub(r"[.,]", "", value_str[:last_sep])
+                        dec_part = value_str[last_sep + 1 :]
+                        norm = f"{int_part}.{dec_part}"
+                    else:
+                        # Single separator type: assume it's the decimal separator
+                        norm = value_str.replace(",", ".")
+                    try:
+                        values.append(float(norm))
+                    except ValueError:
+                        continue
 
-                # If both '.' and ',' appear, treat the last separator as decimal
-                # and all others as thousands
-                if "," in value_str and "." in value_str:
-                    last_sep = max(value_str.rfind(","), value_str.rfind("."))
-                    int_part = re.sub(r"[.,]", "", value_str[:last_sep])
-                    dec_part = value_str[last_sep + 1 :]
-                    value_str = f"{int_part}.{dec_part}"
-                else:
-                    # Single separator type: assume it's the decimal separator
-                    value_str = value_str.replace(",", ".")
-
-                try:
-                    return float(value_str)
-                except ValueError:
+                if not values:
                     return None
+
+                # Heuristic: use the smallest price-like token found.
+                # For strings like "from $23.98 ... from $28.50", this prefers 23.98.
+                return min(values)
 
             # Helper to read the main price from core price containers
             def _extract_core_price():

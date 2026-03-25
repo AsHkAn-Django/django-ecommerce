@@ -148,6 +148,5 @@ Portfolio: [codewithashkan.com](https://codewithashkan.com/)
 
 GitHub: [AsHkAn-Django](https://github.com/AsHkAn-Django)
 
-LinkedIn: [Ashkan Ahrari](https://www.linkedin.com/in/ashkan-ahrari/)
 
 I specialize in deploying scalable Django architectures. Open for contract and full-time backend roles.
